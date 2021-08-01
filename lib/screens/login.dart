@@ -62,7 +62,7 @@ class _LoginState extends State<Login> {
                     obscureText: true,
                   ),
                   SizedBox(
-                    height: MediaQuery.of(context).size.height / 30,
+                    height: MediaQuery.of(context).size.height / 20,
                   ),
                   ButtonBar(
                     children: [
