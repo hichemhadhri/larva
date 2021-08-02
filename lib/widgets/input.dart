@@ -6,12 +6,14 @@ class Input extends StatefulWidget {
   final String errorText;
   final bool error;
   final String hint;
+  final bool obscure;
 
   const Input(
       {Key? key,
       required this.controller,
       required this.error,
       required this.errorText,
+      this.obscure: false,
       required this.hint})
       : super(key: key);
 
@@ -25,13 +27,14 @@ class _InputState extends State<Input> {
     return Column(
       children: [
         TextField(
+          obscureText: widget.obscure,
           controller: widget.controller,
           decoration: InputDecoration(
               errorText: widget.error ? widget.errorText : null,
               hintText: widget.hint),
         ),
         SizedBox(
-          height: 15,
+          height: 20,
         )
       ],
     );

@@ -27,34 +27,65 @@ class _SignState extends State<Sign> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
-          body: Padding(
+    return Scaffold(
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+        ),
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: SingleChildScrollView(
+          child: Padding(
             padding: c_padding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text("Larva", style: Theme.of(context).textTheme.headline3),
-                SizedBox(height: 30),
+                SizedBox(height: 100),
                 Input(
                     controller: name,
                     error: nameError,
                     errorText: 'Invalid Name',
                     hint: 'Name'),
                 Input(
-                    controller: name,
+                    controller: surname,
                     error: surnameError,
                     errorText: 'Invalid surname',
                     hint: 'Surname'),
                 Input(
-                    controller: name,
+                    controller: birth,
                     error: surnameError,
                     errorText: 'You must be over 13',
                     hint: 'Birth'),
+                Input(
+                    controller: email,
+                    error: surnameError,
+                    errorText: 'Invalid email',
+                    hint: 'Email'),
+                Input(
+                  controller: password,
+                  error: surnameError,
+                  errorText: 'Password must be over 8 characters',
+                  hint: 'Password',
+                  obscure: true,
+                ),
+                Input(
+                    controller: confirmPassword,
+                    error: surnameError,
+                    errorText: 'Ppasswords do not much',
+                    hint: 'Confirm password',
+                    obscure: true),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 50,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(child: Text("Sign up"), onPressed: () {}),
+                  ],
+                )
               ],
             ),
-          )),
-    );
+          ),
+        ));
   }
 }

@@ -43,8 +43,8 @@ class _LoginState extends State<Login> {
                     color: Colors.white,
                   ),
                   Center(
-                    child: Text("Larva",
-                        style: Theme.of(context).textTheme.headline6),
+                    child: Text("Butterfly",
+                        style: Theme.of(context).textTheme.headline5),
                   ),
                   SizedBox(height: MediaQuery.of(context).size.height / 9),
                   TextField(
@@ -64,11 +64,14 @@ class _LoginState extends State<Login> {
                   SizedBox(
                     height: MediaQuery.of(context).size.height / 20,
                   ),
-                  ButtonBar(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         child: Text('SIGN UP'),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.pushNamed(context, "sign");
+                        },
                       ),
                       ElevatedButton(
                         child: Text('LOGIN'),

@@ -14,7 +14,16 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'Larva',
+      initialRoute: '',
+      routes: {
+        '': (context) => Login(),
+        'sign': (context) => Sign(),
+        // '/wall': (context) => Wall(),
+        // '/user': (context) => UserDetails(),
+        // '/add': (context) => Add(),
+        // '/profile': (context) => Profile()
+      },
       theme: ThemeData(
         backgroundColor: Colors.black,
         buttonColor: Color(0xFFFDAF01),
@@ -63,14 +72,20 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.w300,
               letterSpacing: -0.5),
           headline3: GoogleFonts.dmSans(
-              color: Colors.white, fontSize: 51, fontWeight: FontWeight.w400),
+              color: Colors.white,
+              fontSize: 51,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 1),
           headline4: GoogleFonts.dmSans(
               color: Colors.white,
               fontSize: 36,
               fontWeight: FontWeight.w400,
-              letterSpacing: 0.25),
-          headline5:
-              GoogleFonts.dmSans(fontSize: 26, fontWeight: FontWeight.w400),
+              letterSpacing: 2),
+          headline5: GoogleFonts.dmSans(
+              letterSpacing: 2,
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w400),
           headline6: GoogleFonts.dmSans(
               color: Colors.white,
               fontSize: 21,
