@@ -15,7 +15,7 @@ class _LoginState extends State<Login> {
 
   final _password = TextEditingController();
 
-  String? errorPassword = null;
+  String? errorPassword;
   String? errorEmail;
 
   @override
