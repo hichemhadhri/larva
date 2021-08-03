@@ -80,7 +80,11 @@ class _SignState extends State<Sign> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    ElevatedButton(child: Text("Sign up"), onPressed: () {}),
+                    ElevatedButton(
+                        child: Text("Sign up"),
+                        onPressed: () {
+                          Navigator.pushNamed(context, "nav");
+                        }),
                   ],
                 )
               ],

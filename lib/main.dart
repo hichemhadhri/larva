@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'screens/login.dart';
-import 'screens/sign.dart';
+import 'routes/navigation.dart';
+import 'screens/login_screen.dart';
+import 'screens/sign_screen.dart';
 
 void main() {
   runApp(MyApp());
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '': (context) => Login(),
         'sign': (context) => Sign(),
-        // '/wall': (context) => Wall(),
+        'nav': (context) => Nav(),
         // '/user': (context) => UserDetails(),
         // '/add': (context) => Add(),
         // '/profile': (context) => Profile()
