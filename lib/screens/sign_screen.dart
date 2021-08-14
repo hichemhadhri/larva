@@ -23,11 +23,25 @@ class _SignState extends State<Sign> {
   bool confirmError = false;
   final birth = TextEditingController();
   bool birthError = false;
-  DateTime seletedBirth = DateTime.now();
+  DateTime selectedBirth = DateTime.now();
+
+  @override
+  void dispose() {
+    // Clean up the controller when the widget is disposed.
+    name.dispose();
+    surname.dispose();
+    email.dispose();
+    password.dispose();
+    confirmPassword.dispose();
+    birth.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.transparent,

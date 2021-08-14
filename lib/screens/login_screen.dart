@@ -30,6 +30,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+          resizeToAvoidBottomInset: true,
           backgroundColor: Theme.of(context).backgroundColor,
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 50),

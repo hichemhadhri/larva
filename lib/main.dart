@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'constants/constants.dart';
 import 'routes/navigation.dart';
 import 'screens/login_screen.dart';
 import 'screens/sign_screen.dart';
@@ -26,8 +27,13 @@ class MyApp extends StatelessWidget {
         // '/profile': (context) => Profile()
       },
       theme: ThemeData(
+        iconTheme: IconThemeData(color: Colors.white),
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+            backgroundColor: Colors.black,
+            unselectedItemColor: Colors.white,
+            selectedItemColor: gold),
         backgroundColor: Colors.black,
-        buttonColor: Color(0xFFFDAF01),
+        buttonColor: gold,
         bottomAppBarColor: Color(0xFF303030),
         inputDecorationTheme: InputDecorationTheme(
           focusedBorder: UnderlineInputBorder(
@@ -56,7 +62,7 @@ class MyApp extends StatelessWidget {
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Color(0xFFFDAF01)),
+            backgroundColor: MaterialStateProperty.all(gold),
             foregroundColor: MaterialStateProperty.all(Colors.white),
             elevation: MaterialStateProperty.all(20),
           ),
