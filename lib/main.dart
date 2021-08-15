@@ -27,6 +27,7 @@ class MyApp extends StatelessWidget {
         // '/profile': (context) => Profile()
       },
       theme: ThemeData(
+        scaffoldBackgroundColor: Colors.black,
         appBarTheme: AppBarTheme(
             titleTextStyle: Theme.of(context).textTheme.headline4,
             color: Colors.black),

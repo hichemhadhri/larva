@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:larva/screens/contest_screen.dart';
 import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
@@ -35,14 +36,17 @@ class _NavState extends State<Nav> {
         Wall(
           controller: controller,
         ),
+        ContestScreen(),
         Add(),
         Profile()
       ].elementAt(_selectedIndex),
       bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
           onTap: onTapItem,
           currentIndex: _selectedIndex,
           items: [
             BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+            BottomNavigationBarItem(icon: Icon(Icons.star), label: "Contests"),
             BottomNavigationBarItem(icon: Icon(Icons.add), label: "Add"),
             BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
           ]),
