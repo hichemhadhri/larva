@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
@@ -31,12 +30,6 @@ class _NavState extends State<Nav> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        brightness: Brightness.dark, // status bar brightness
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        automaticallyImplyLeading: false,
-      ),
       extendBodyBehindAppBar: true,
       body: [
         Wall(

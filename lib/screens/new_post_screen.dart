@@ -1,5 +1,10 @@
+import 'dart:io';
+import 'dart:math';
+import "package:images_picker/images_picker.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:larva/util/SearchContest.dart';
+import 'package:larva/widgets/Tag.dart';
 
 class Add extends StatefulWidget {
   const Add({Key? key}) : super(key: key);
@@ -12,6 +17,7 @@ class _AddState extends State<Add> {
   final _title = TextEditingController();
   final _description = TextEditingController();
   int _selectedDomaine = 0;
+  List<String> _constests = [];
   List<String> _domaines = <String>[
     'Music',
     'Photography',
@@ -21,9 +27,44 @@ class _AddState extends State<Add> {
     'Video Editing',
     'Magic ',
   ];
+
+  late File _selectedMedia;
+  bool _select = false;
+  void getImage() async {
+    List<Media>? res = await ImagesPicker.pick(
+      count: 1,
+      pickType: PickType.all,
+      quality: 0.8, // only for android
+      maxSize: 500,
+    );
+    setState(() {
+      _selectedMedia = File(res!.first.path);
+      _select = true;
+    });
+  }
+
+  Random random = Random();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          brightness: Brightness.dark,
+          elevation: 0,
+          title: Text("New Post", style: Theme.of(context).textTheme.headline6),
+          actions: [
+            TextButton(
+              onPressed: () {},
+              child: Text(
+                "Publier",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline6
+                    ?.copyWith(color: Colors.amber),
+              ),
+            ),
+          ],
+          automaticallyImplyLeading: false,
+        ),
         resizeToAvoidBottomInset: true,
         backgroundColor: Theme.of(context).backgroundColor,
         body: Column(
@@ -31,7 +72,16 @@ class _AddState extends State<Add> {
             Expanded(
                 flex: 2,
                 child: GestureDetector(
-                    child: Center(child: Text("Upload Media")))),
+                    onTap: () {
+                      getImage();
+                    },
+                    child: _select
+                        ? Image.file(_selectedMedia)
+                        : Center(
+                            child: Text(
+                            "Upload Media",
+                            style: Theme.of(context).textTheme.bodyText1,
+                          )))),
             TextFormField(
               textCapitalization: TextCapitalization.sentences,
               style: TextStyle(color: Colors.white),
@@ -46,6 +96,10 @@ class _AddState extends State<Add> {
             ),
             Expanded(
               child: TextFormField(
+                textInputAction: TextInputAction.done,
+                onEditingComplete: () {
+                  FocusScope.of(context).unfocus();
+                },
                 style: TextStyle(color: Colors.white),
                 expands: true,
                 textCapitalization: TextCapitalization.sentences,
@@ -101,7 +155,27 @@ class _AddState extends State<Add> {
                 "Contests : ",
                 style: Theme.of(context).textTheme.subtitle1,
               ),
-              IconButton(onPressed: () {}, icon: Icon(Icons.add))
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: _constests
+                        .map((e) => Tag(
+                            key: Key(e), color: random.nextInt(8), string: e))
+                        .toList(),
+                  ),
+                ),
+              ),
+              IconButton(
+                  onPressed: () async {
+                    var result = await showSearch(
+                        context: context, delegate: SearchContest());
+                    setState(() {
+                      _constests.add(result!);
+                    });
+                  },
+                  icon: Icon(Icons.add))
             ]),
             Expanded(flex: 1, child: Container())
           ],

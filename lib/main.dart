@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Larva',
+      title: 'Butterfly',
       initialRoute: '',
       routes: {
         '': (context) => Login(),
@@ -27,6 +27,9 @@ class MyApp extends StatelessWidget {
         // '/profile': (context) => Profile()
       },
       theme: ThemeData(
+        appBarTheme: AppBarTheme(
+            titleTextStyle: Theme.of(context).textTheme.headline4,
+            color: Colors.black),
         iconTheme: IconThemeData(color: Colors.white),
         bottomNavigationBarTheme: BottomNavigationBarThemeData(
             backgroundColor: Colors.black,
@@ -109,12 +112,12 @@ class MyApp extends StatelessWidget {
               fontWeight: FontWeight.w500,
               letterSpacing: 0.1),
           bodyText1: GoogleFonts.roboto(
-              color: Color(0xFFC1C1C1),
+              color: Colors.white,
               fontSize: 16,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.5),
           bodyText2: GoogleFonts.roboto(
-              color: Color(0xFFC1C1C1),
+              color: Colors.white,
               fontSize: 14,
               fontWeight: FontWeight.w400,
               letterSpacing: 0.25),

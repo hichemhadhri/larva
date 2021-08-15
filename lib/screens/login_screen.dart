@@ -28,64 +28,62 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          backgroundColor: Theme.of(context).backgroundColor,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 50),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: MediaQuery.of(context).size.height / 9),
-                  SvgPicture.asset(
-                    "lib/assets/images/butterfly.svg",
-                    height: 200,
-                    color: Colors.white,
+    return Scaffold(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: Theme.of(context).backgroundColor,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 50),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height / 9),
+                SvgPicture.asset(
+                  "lib/assets/images/butterfly.svg",
+                  height: 200,
+                  color: Colors.white,
+                ),
+                Center(
+                  child: Text("Butterfly",
+                      style: Theme.of(context).textTheme.headline5),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height / 9),
+                TextField(
+                  controller: _username,
+                  decoration:
+                      InputDecoration(errorText: null, hintText: 'email'),
+                ),
+                SizedBox(height: MediaQuery.of(context).size.height / 20),
+                TextField(
+                  controller: _password,
+                  decoration: InputDecoration(
+                    errorText: null,
+                    hintText: 'Password',
                   ),
-                  Center(
-                    child: Text("Butterfly",
-                        style: Theme.of(context).textTheme.headline5),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height / 9),
-                  TextField(
-                    controller: _username,
-                    decoration:
-                        InputDecoration(errorText: null, hintText: 'email'),
-                  ),
-                  SizedBox(height: MediaQuery.of(context).size.height / 20),
-                  TextField(
-                    controller: _password,
-                    decoration: InputDecoration(
-                      errorText: null,
-                      hintText: 'Password',
+                  obscureText: true,
+                ),
+                SizedBox(
+                  height: MediaQuery.of(context).size.height / 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      child: Text('SIGN UP'),
+                      onPressed: () {
+                        Navigator.pushNamed(context, "sign");
+                      },
                     ),
-                    obscureText: true,
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 20,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        child: Text('SIGN UP'),
-                        onPressed: () {
-                          Navigator.pushNamed(context, "sign");
-                        },
-                      ),
-                      ElevatedButton(
-                        child: Text('LOGIN'),
-                        onPressed: () {
-                          Navigator.pushNamed(context, "nav");
-                        },
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                    ElevatedButton(
+                      child: Text('LOGIN'),
+                      onPressed: () {
+                        Navigator.pushNamed(context, "nav");
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
-          )),
-    );
+          ),
+        ));
   }
 }

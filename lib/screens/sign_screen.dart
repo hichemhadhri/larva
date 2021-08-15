@@ -43,6 +43,7 @@ class _SignState extends State<Sign> {
     return Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
+          brightness: Brightness.dark,
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
