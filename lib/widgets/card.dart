@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:larva/screens/Contest_details_screen.dart';
 
 class ContestCard extends StatelessWidget {
   final Color color;
@@ -13,7 +14,17 @@ class ContestCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       isThreeLine: true,
-      onTap: () {},
+      onTap: () {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => Contest(
+                      name: name,
+                      prize: prize,
+                      img: "",
+                      deadline: 5000,
+                    )));
+      },
       tileColor: Colors.black,
       focusColor: Colors.amber,
       leading: CircleAvatar(

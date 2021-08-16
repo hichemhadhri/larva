@@ -30,7 +30,6 @@ class _ProfileState extends State<Profile> {
           automaticallyImplyLeading: false,
           actions: [],
         ),
-        backgroundColor: Theme.of(context).backgroundColor,
         body: SingleChildScrollView(
           child: Column(children: [
             SizedBox(height: 20),

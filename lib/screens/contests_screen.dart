@@ -12,8 +12,10 @@ class _ContestScreenState extends State<ContestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar:
-            AppBar(automaticallyImplyLeading: false, title: Text("Contests")),
+        appBar: AppBar(
+            brightness: Brightness.dark,
+            automaticallyImplyLeading: false,
+            title: Text("Contests")),
         body: ListView(
           children: [
             ContestCard(

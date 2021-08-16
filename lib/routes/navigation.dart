@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:larva/screens/contest_screen.dart';
+import 'package:larva/screens/contests_screen.dart';
 import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
