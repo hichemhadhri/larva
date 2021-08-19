@@ -13,9 +13,11 @@ class _ContestScreenState extends State<ContestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-            brightness: Brightness.dark,
-            automaticallyImplyLeading: false,
-            title: Text("Contests")),
+          brightness: Brightness.dark,
+          automaticallyImplyLeading: false,
+          title: Text("Contests"),
+          actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
+        ),
         body: ListView(
           children: [
             ContestCard(

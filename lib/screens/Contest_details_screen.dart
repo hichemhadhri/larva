@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:larva/screens/new_post_screen.dart';
 
 class Contest extends StatefulWidget {
   final String name;
@@ -34,7 +36,14 @@ class _ContestState extends State<Contest> {
     super.initState();
 
     deadline = new Duration(seconds: widget.deadline);
+
     timer = Timer.periodic(Duration(seconds: 1), (_) => countDown());
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    timer!.cancel();
   }
 
   @override
@@ -43,56 +52,91 @@ class _ContestState extends State<Contest> {
       appBar: AppBar(
         brightness: Brightness.dark,
         title: Text(widget.name),
+        actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => Add(
+                            custom: true,
+                            contest: widget.name.replaceAll(" ", "_"))));
+              },
+              child: Text("join",
+                  style: Theme.of(context).textTheme.headline6!.copyWith(
+                        color: Colors.amber,
+                      )))
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            CircleAvatar(radius: 60, backgroundColor: Colors.red),
-            SizedBox(
-              height: 20,
-            ),
-            Text(
-              widget.name,
-              style: Theme.of(context).textTheme.headline5,
-              textAlign: TextAlign.center,
-            ),
-            SizedBox(height: 10),
-            ElevatedButton.icon(
-                style: ElevatedButton.styleFrom(fixedSize: Size(110, 20)),
-                onPressed: () {},
-                icon: Icon(Icons.add),
-                label: Text("Follow")),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Column(
-                  children: <Widget>[
-                    Text(
-                      "1K",
-                      style: TextStyle(fontWeight: FontWeight.w600),
+            Column(
+              children: [
+                Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.black,
+                      child: SvgPicture.asset(
+                        "lib/assets/images/butterfly.svg",
+                        color: Colors.white,
+                      ),
                     ),
-                    Text('Post')
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      "1K",
-                      style: TextStyle(fontWeight: FontWeight.w600),
+                    Column(
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                            ),
+                            Text(
+                              widget.name,
+                              style: Theme.of(context).textTheme.headline6,
+                            ),
+                            SizedBox(
+                              width: 10,
+                            ),
+                            ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.transparent,
+                                ),
+                                onPressed: () {},
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.amber,
+                                ),
+                                label: Text(
+                                  "Follow",
+                                  style: TextStyle(color: Colors.amber),
+                                )),
+                          ],
+                        ),
+                        Row(
+                          children: <Widget>[
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  "1K",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text('Posts')
+                              ],
+                            ),
+                            SizedBox(width: 20),
+                            Column(
+                              children: <Widget>[
+                                Text(
+                                  "100£",
+                                  style: TextStyle(fontWeight: FontWeight.w600),
+                                ),
+                                Text('Prize')
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    Text('Followers')
-                  ],
-                ),
-                Column(
-                  children: <Widget>[
-                    Text(
-                      "100£",
-                      style: TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    Text('Prize')
                   ],
                 ),
               ],
@@ -100,12 +144,73 @@ class _ContestState extends State<Contest> {
             SizedBox(
               height: 20,
             ),
-            Text(
-              deadline.inSeconds.toString(),
-              style: Theme.of(context)
-                  .textTheme
-                  .headline3!
-                  .copyWith(color: Colors.amber),
+            Row(
+              children: [
+                Text(
+                  "Time Left : ",
+                  style: Theme.of(context).textTheme.headline6,
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Text(
+                  "${deadline.inDays}d ${deadline.inHours % 24}h ${deadline.inMinutes % 60}m ${deadline.inSeconds % 60}s",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headline4!
+                      .copyWith(color: Colors.amber),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+            Center(
+                child:
+                    ElevatedButton(onPressed: () {}, child: Text("See posts"))),
+            Column(
+              children: [
+                ListTile(
+                  title: Text("hichem hadhri"),
+                  leading: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage(
+                        "lib/assets/images/hichem.jpeg",
+                      )),
+                  trailing: Text("4.9"),
+                ),
+                ListTile(
+                  title: Text("hichem hadhri"),
+                  leading: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage(
+                        "lib/assets/images/hichem.jpeg",
+                      )),
+                  trailing: Text("4.9"),
+                ),
+                ListTile(
+                  title: Text("hichem hadhri"),
+                  leading: CircleAvatar(
+                      radius: 20,
+                      backgroundImage: AssetImage(
+                        "lib/assets/images/hichem.jpeg",
+                      )),
+                  trailing: Text("4.9"),
+                ),
+                ListTile(
+                  title: Text("hichem hadhri"),
+                  leading: CircleAvatar(
+                    radius: 20,
+                    backgroundImage: ResizeImage(
+                        AssetImage(
+                          "lib/assets/images/hichem.jpeg",
+                        ),
+                        width: 40,
+                        height: 40),
+                  ),
+                  trailing: Text("4.9"),
+                )
+              ],
             )
           ],
         ),

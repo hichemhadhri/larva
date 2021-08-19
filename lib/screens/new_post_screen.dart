@@ -7,7 +7,10 @@ import 'package:larva/util/SearchContest.dart';
 import 'package:larva/widgets/Tag.dart';
 
 class Add extends StatefulWidget {
-  const Add({Key? key}) : super(key: key);
+  final String contest;
+  final bool custom;
+  const Add({Key? key, this.custom = false, this.contest = ""})
+      : super(key: key);
 
   @override
   _AddState createState() => _AddState();
@@ -17,7 +20,14 @@ class _AddState extends State<Add> {
   final _title = TextEditingController();
   final _description = TextEditingController();
   int _selectedDomaine = 0;
-  List<String> _constests = [];
+  late List<String> _constests;
+
+  @override
+  void initState() {
+    super.initState();
+    _constests = widget.contest.isEmpty ? [] : [widget.contest];
+  }
+
   List<String> _domaines = <String>[
     'Music',
     'Photography',
@@ -63,7 +73,7 @@ class _AddState extends State<Add> {
               ),
             ),
           ],
-          automaticallyImplyLeading: false,
+          automaticallyImplyLeading: widget.custom,
         ),
         resizeToAvoidBottomInset: true,
         backgroundColor: Theme.of(context).backgroundColor,
