@@ -1,11 +1,9 @@
-class Userp {
+class User {
   String? token;
   String? uid;
   Object? data;
   String? name;
-  Userp(String token, String uid, Object data) {
-    this.data = data;
+  User(String token, String uid, Object data) {
     this.token = token;
-    this.uid = uid;
   }
 }

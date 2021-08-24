@@ -3,32 +3,46 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:larva/constants/constants.dart';
 
-class Post extends StatefulWidget {
+class PostWidget extends StatefulWidget {
   final String title;
   final String description;
   final String authorName;
-  final String constests;
+  final List<String> constests;
   final String subject;
   final PageController controller;
+  final String url;
 
-  const Post(
+  const PostWidget(
       {Key? key,
       required this.title,
       required this.description,
       required this.authorName,
       required this.constests,
       required this.subject,
-      required this.controller})
+      required this.controller,
+      required this.url})
       : super(key: key);
 
   @override
-  _PostState createState() => _PostState();
+  _PostWidgetState createState() => _PostWidgetState();
 }
 
-class _PostState extends State<Post> {
+class _PostWidgetState extends State<PostWidget> {
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        shadowColor: Colors.transparent,
+        brightness: Brightness.dark,
+        automaticallyImplyLeading: false,
+      ),
+      extendBodyBehindAppBar: true,
       backgroundColor: Colors.black,
       body: Padding(
         padding: EdgeInsets.only(left: 10, right: 10, top: 50, bottom: 0),
@@ -50,13 +64,11 @@ class _PostState extends State<Post> {
             Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: widget.constests
-                    .split(",")
-                    .toList()
                     .map((e) =>
                         Text(e, style: Theme.of(context).textTheme.caption))
                     .toList()),
             SizedBox(height: 10),
-            Expanded(child: Container(color: Colors.yellow)),
+            Expanded(child: Image.network(baseURL + widget.url)),
             SizedBox(height: 20),
             Text(widget.title, style: Theme.of(context).textTheme.headline6),
             SizedBox(height: 10),

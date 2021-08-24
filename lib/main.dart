@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:larva/providers/tokenProvider.dart';
+import 'package:provider/provider.dart';
 
 import 'constants/constants.dart';
 import 'routes/navigation.dart';
@@ -7,7 +9,9 @@ import 'screens/login_screen.dart';
 import 'screens/sign_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => Token())],
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

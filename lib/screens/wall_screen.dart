@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:larva/controllers/postController.dart';
+import 'package:larva/models/post.dart';
 import 'package:larva/widgets/post.dart';
 
 class Wall extends StatefulWidget {
@@ -10,35 +12,33 @@ class Wall extends StatefulWidget {
 }
 
 class _WallState extends State<Wall> {
+  final PostController _pc = PostController();
   @override
   Widget build(BuildContext context) {
-    return PageView(
-      controller: widget.controller,
-      scrollDirection: Axis.vertical,
-      children: [
-        Post(
-          controller: widget.controller,
-          title: "hello IOS",
-          description: "building wall layout",
-          authorName: "Hichem Hadhri",
-          constests: "artigo",
-          subject: "Development",
-        ),
-        Post(
-            controller: widget.controller,
-            title: "Wt aamalna thawra",
-            description: "niggas know my aka",
-            authorName: "A.L.A",
-            constests: "zahrouni",
-            subject: "Music"),
-        Post(
-            controller: widget.controller,
-            title: "Sunset lover",
-            description: "golden moment in mornag",
-            authorName: "Unknown",
-            constests: "guruShots",
-            subject: "Photography")
-      ],
+    return FutureBuilder(
+      future: _pc.getPosts(context),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final posts = snapshot.data as List<Post>;
+          return PageView.builder(
+              scrollDirection: Axis.vertical,
+              controller: widget.controller,
+              itemCount: posts.length,
+              itemBuilder: (context, index) => PostWidget(
+                  url: posts[index].mediaUrl,
+                  title: posts[index].title,
+                  description: posts[index].description,
+                  authorName: posts[index].authorName,
+                  constests: [],
+                  subject: posts[index].domaine,
+                  controller: widget.controller));
+        } else {
+          return Center(
+              child: CircularProgressIndicator(
+            color: Colors.amber,
+          ));
+        }
+      },
     );
   }
 }

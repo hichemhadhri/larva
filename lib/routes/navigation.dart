@@ -22,24 +22,28 @@ class _NavState extends State<Nav> {
     {
       controller.animateToPage(0,
           duration: Duration(milliseconds: 400), curve: Curves.easeIn);
+    } else {
+      setState(() {
+        _selectedIndex = i;
+      });
     }
-    setState(() {
-      _selectedIndex = i;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: [
-        Wall(
-          controller: controller,
-        ),
-        ContestScreen(),
-        Add(),
-        Profile()
-      ].elementAt(_selectedIndex),
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          Wall(
+            controller: controller,
+          ),
+          ContestScreen(),
+          Add(),
+          Profile()
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           onTap: onTapItem,
