@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
@@ -24,5 +25,21 @@ class PostController {
     }
 
     return result;
+  }
+
+  Future<int> uploadPost(BuildContext context, File file, String title,
+      String description, String domaine) async {
+    final uri = Uri.parse(baseURL + "posts/new");
+
+    var request = new http.MultipartRequest("POST", uri);
+    request.headers["Authorization"] = 'Bearer ' + context.read<Token>().token;
+    request.fields['description'] = description;
+    request.fields['title'] = title;
+    request.fields['domaine'] = domaine;
+    request.files.add(await http.MultipartFile.fromPath('file', file.path));
+
+    http.StreamedResponse response = await request.send();
+    if (response.statusCode == 500) {}
+    return response.statusCode;
   }
 }

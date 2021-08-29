@@ -11,6 +11,7 @@ class PostWidget extends StatefulWidget {
   final String subject;
   final PageController controller;
   final String url;
+  final String color;
 
   const PostWidget(
       {Key? key,
@@ -20,7 +21,8 @@ class PostWidget extends StatefulWidget {
       required this.constests,
       required this.subject,
       required this.controller,
-      required this.url})
+      required this.url,
+      required this.color})
       : super(key: key);
 
   @override
@@ -43,7 +45,7 @@ class _PostWidgetState extends State<PostWidget> {
         automaticallyImplyLeading: false,
       ),
       extendBodyBehindAppBar: true,
-      backgroundColor: Colors.black,
+      backgroundColor: Color(int.parse(widget.color.replaceFirst("#", "0xff"))),
       body: Padding(
         padding: EdgeInsets.only(left: 10, right: 10, top: 50, bottom: 0),
         child: Column(
@@ -67,8 +69,29 @@ class _PostWidgetState extends State<PostWidget> {
                     .map((e) =>
                         Text(e, style: Theme.of(context).textTheme.caption))
                     .toList()),
-            SizedBox(height: 10),
-            Expanded(child: Image.network(baseURL + widget.url)),
+            SizedBox(
+              height: 20,
+            ),
+            Expanded(
+                child: Center(
+                    child: Container(
+                        height: 400,
+                        width: 400,
+                        decoration: BoxDecoration(boxShadow: [
+                          BoxShadow(
+                            color: Colors.black87,
+                            spreadRadius: 5,
+                            blurRadius: 7,
+                            offset: Offset(0, 4), // changes position of shadow
+                          ),
+                        ], border: Border.all(width: 2, color: Colors.white)),
+                        child: InteractiveViewer(
+                          child: Image.network(
+                            baseURL + widget.url,
+                            filterQuality: FilterQuality.medium,
+                            fit: BoxFit.fill,
+                          ),
+                        )))),
             SizedBox(height: 20),
             Text(widget.title, style: Theme.of(context).textTheme.headline6),
             SizedBox(height: 10),
@@ -98,7 +121,7 @@ class _PostWidgetState extends State<PostWidget> {
                 },
               ),
             ),
-            SizedBox(height: 80)
+            SizedBox(height: 70)
           ],
         ),
       ),

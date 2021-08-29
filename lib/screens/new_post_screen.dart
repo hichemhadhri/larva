@@ -3,6 +3,7 @@ import 'dart:math';
 import "package:images_picker/images_picker.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:larva/controllers/postController.dart';
 import 'package:larva/util/SearchContest.dart';
 import 'package:larva/widgets/Tag.dart';
 
@@ -17,6 +18,7 @@ class Add extends StatefulWidget {
 }
 
 class _AddState extends State<Add> {
+  final PostController _pc = PostController();
   final _title = TextEditingController();
   final _description = TextEditingController();
   int _selectedDomaine = 0;
@@ -63,7 +65,17 @@ class _AddState extends State<Add> {
           title: Text("New Post", style: Theme.of(context).textTheme.headline6),
           actions: [
             TextButton(
-              onPressed: () {},
+              onPressed: () async {
+                int code = await _pc.uploadPost(
+                    context,
+                    _selectedMedia,
+                    _title.text,
+                    _description.text,
+                    _domaines.elementAt(_selectedDomaine));
+                if (code == 200) {
+                  print("done");
+                }
+              },
               child: Text(
                 "Publier",
                 style: Theme.of(context)

@@ -29,4 +29,32 @@ class Auth {
 
     return response.statusCode;
   }
+
+  Future<int> signUp(int age, String sexe, String mail, String password,
+      BuildContext context, String surname, String name) async {
+    //bool isConnected = await checkConnection(baseURL);
+
+    final uri = Uri.parse(baseURL + "users/sign");
+    http.Response response = await http.post(uri,
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          "mail": mail,
+          "surname": surname,
+          "name": name,
+          "age": age,
+          "sexe": sexe,
+          "password": password,
+        }));
+
+    if (response.statusCode == 200) {
+      var body = json.decode(response.body);
+      String token = body['token'] as String;
+
+      context.read<Token>().setToken(token);
+    }
+
+    return response.statusCode;
+  }
 }

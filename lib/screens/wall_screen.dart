@@ -13,6 +13,7 @@ class Wall extends StatefulWidget {
 
 class _WallState extends State<Wall> {
   final PostController _pc = PostController();
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -25,6 +26,7 @@ class _WallState extends State<Wall> {
               controller: widget.controller,
               itemCount: posts.length,
               itemBuilder: (context, index) => PostWidget(
+                  color: posts[index].backgroundColor,
                   url: posts[index].mediaUrl,
                   title: posts[index].title,
                   description: posts[index].description,

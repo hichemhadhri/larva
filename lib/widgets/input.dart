@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -27,6 +28,14 @@ class _InputState extends State<Input> {
     return Column(
       children: [
         TextFormField(
+          onTap: () {
+            showCupertinoModalPopup(
+                context: context,
+                builder: (context) {
+                  return _buildBottomPicker(
+                      CupertinoDatePicker(onDateTimeChanged: (time) {}));
+                });
+          },
           obscureText: widget.obscure,
           controller: widget.controller,
           decoration: InputDecoration(
@@ -37,6 +46,29 @@ class _InputState extends State<Input> {
           height: 20,
         )
       ],
+    );
+  }
+
+  double _kPickerSheetHeight = 200.0;
+  Widget _buildBottomPicker(Widget picker) {
+    return Container(
+      height: _kPickerSheetHeight,
+      padding: const EdgeInsets.only(top: 6.0),
+      color: CupertinoColors.white,
+      child: DefaultTextStyle(
+        style: const TextStyle(
+          color: CupertinoColors.black,
+          fontSize: 22.0,
+        ),
+        child: GestureDetector(
+          // Blocks taps from propagating to the modal sheet and popping.
+          onTap: () {},
+          child: SafeArea(
+            top: false,
+            child: picker,
+          ),
+        ),
+      ),
     );
   }
 }

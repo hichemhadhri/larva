@@ -6,6 +6,7 @@ class Post {
   final int views;
   final int superlikes;
   final String id;
+  final List<dynamic> contests;
   final String description;
   final String title;
   final String domaine;
@@ -17,6 +18,7 @@ class Post {
   final String createdAt;
 
   Post({
+    required this.contests,
     required this.backgroundColor,
     required this.priority,
     required this.rating,
@@ -35,6 +37,7 @@ class Post {
   });
 
   static Post fromJson(Map<String, dynamic> json) => Post(
+        contests: json['contests'],
         backgroundColor: json['backgroundColor'],
         priority: json['priority'],
         rating: json['rating'],
