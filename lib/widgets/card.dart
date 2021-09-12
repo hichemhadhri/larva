@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
+import 'package:larva/constants/constants.dart';
 import 'package:larva/screens/Contest_details_screen.dart';
 
 class ContestCard extends StatelessWidget {
@@ -12,46 +15,36 @@ class ContestCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      isThreeLine: true,
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => Contest(
-                      name: name,
-                      prize: prize,
-                      img: "",
-                      deadline: 5000,
-                    )));
-      },
-      tileColor: Colors.black,
-      focusColor: Colors.amber,
-      leading: CircleAvatar(
-          backgroundColor: color, child: Text(name.substring(0, 1))),
-      title: Text(
-        name,
-        style: Theme.of(context).textTheme.headline6,
+    final _textTheme = Theme.of(context).textTheme;
+    Random _random = Random();
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10),
+      height: 200,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(10)),
+        color: colors.elementAt(_random.nextInt(8)).shade300,
       ),
-      subtitle: Text(
-        "prize : " + prize,
-        style: Theme.of(context).textTheme.overline,
-      ),
-      trailing: Wrap(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "7 Days ",
-            style: Theme.of(context)
-                .textTheme
-                .headline6!
-                .copyWith(color: Colors.amber),
+            name.replaceAll(" ", "_"),
+            style: _textTheme.headline5!.copyWith(color: Colors.black),
           ),
-          IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.arrow_forward_ios_outlined,
-                color: Colors.white,
-              ))
+          Text(
+            "hichem hadhri ",
+            style: _textTheme.subtitle1!.copyWith(color: Colors.black87),
+          ),
+          Row(
+            children: c_icons.sublist(0, 3),
+          ),
+          Text(
+            "Prize : ${prize}",
+            style: _textTheme.bodyText1!.copyWith(color: Colors.black),
+          ),
+          Text("Deadline: 1h 3 m 0s",
+              style: _textTheme.bodyText1!.copyWith(color: Colors.black))
         ],
       ),
     );

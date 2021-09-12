@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:http/http.dart' as http;
-import 'package:larva/providers/tokenProvider.dart';
+
 import 'dart:convert';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth {
   Future<int> authentificate(
@@ -23,8 +24,8 @@ class Auth {
     if (response.statusCode == 200) {
       var body = json.decode(response.body);
       String token = body['token'] as String;
-
-      context.read<Token>().setToken(token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', token);
     }
 
     return response.statusCode;
@@ -51,9 +52,21 @@ class Auth {
     if (response.statusCode == 200) {
       var body = json.decode(response.body);
       String token = body['token'] as String;
-
-      context.read<Token>().setToken(token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      prefs.setString('token', token);
     }
+
+    return response.statusCode;
+  }
+
+  Future<int> checkLogin() async {
+    final uri = Uri.parse(baseURL);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    http.Response response = await http.get(uri, headers: <String, String>{
+      'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
 
     return response.statusCode;
   }

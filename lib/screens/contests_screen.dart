@@ -12,70 +12,66 @@ class _ContestScreenState extends State<ContestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
         appBar: AppBar(
           brightness: Brightness.dark,
           automaticallyImplyLeading: false,
           title: Text("Contests"),
           actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search))],
         ),
-        body: ListView(
-          children: [
-            ContestCard(
-              color: Colors.red,
-              name: "Weekly Contest 12",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.blue,
-              name: "Discover Tunisia",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.brown,
-              name: "Bourguiba got Talent",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.teal,
-              name: "best Shots",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.indigo,
-              name: "Arab Music",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.blueAccent,
-              name: "weekly contest 12",
-              prize: "",
-            ),
-            ContestCard(
-              color: Colors.black,
-              name: "weekly contest 12",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.lightGreen,
-              name: "weekly contest 12",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.deepOrange,
-              name: "weekly contest 12",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.green,
-              name: "weekly contest 12",
-              prize: "100 £ ",
-            ),
-            ContestCard(
-              color: Colors.yellow,
-              name: "weekly contest 12",
-              prize: "100 £ ",
-            ),
-          ],
-        ));
+        body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          SizedBox(
+            height: 20,
+          ),
+          Text('Hot Right Now', style: Theme.of(context).textTheme.headline4),
+          SizedBox(
+            height: 20,
+          ),
+          SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: [
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                ),
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                ),
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                )
+              ])),
+          SizedBox(
+            height: 20,
+          ),
+          Text('Near You', style: Theme.of(context).textTheme.headline4),
+          SizedBox(
+            height: 20,
+          ),
+          SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(children: [
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                ),
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                ),
+                ContestCard(
+                  color: Colors.red,
+                  name: "Weekly Contest 12",
+                  prize: "100 £ ",
+                )
+              ])),
+        ]));
   }
 }

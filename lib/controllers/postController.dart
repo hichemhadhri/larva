@@ -5,16 +5,17 @@ import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/models/post.dart';
 import 'package:http/http.dart' as http;
-import 'package:larva/providers/tokenProvider.dart';
+
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PostController {
   Future<List<Post>> getPosts(BuildContext context) async {
     List<Post> result = [];
     final uri = Uri.parse(baseURL + "posts/wall");
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     http.Response response = await http.get(uri, headers: <String, String>{
-      'Authorization': 'Bearer ' + context.read<Token>().token,
+      'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
       'Content-Type': 'application/json; charset=UTF-8',
     });
 
@@ -30,9 +31,10 @@ class PostController {
   Future<int> uploadPost(BuildContext context, File file, String title,
       String description, String domaine) async {
     final uri = Uri.parse(baseURL + "posts/new");
-
+    SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = new http.MultipartRequest("POST", uri);
-    request.headers["Authorization"] = 'Bearer ' + context.read<Token>().token;
+    request.headers["Authorization"] =
+        'Bearer ' + (prefs.getString("token") ?? "");
     request.fields['description'] = description;
     request.fields['title'] = title;
     request.fields['domaine'] = domaine;
