@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:larva/providers/userid_provider.dart';
 import 'package:larva/screens/contests_screen.dart';
 import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
+import 'package:provider/provider.dart';
 
 class Nav extends StatefulWidget {
   const Nav({Key? key}) : super(key: key);
@@ -41,7 +43,7 @@ class _NavState extends State<Nav> {
           ),
           ContestScreen(),
           Add(),
-          Profile()
+          Profile(id: context.watch<UserId>().id)
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

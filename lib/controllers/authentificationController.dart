@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:http/http.dart' as http;
+import 'package:larva/providers/userid_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'dart:convert';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth {
@@ -26,6 +27,7 @@ class Auth {
       String token = body['token'] as String;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', token);
+      context.read<UserId>().setId(token);
     }
 
     return response.statusCode;
@@ -54,15 +56,16 @@ class Auth {
       String token = body['token'] as String;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', token);
+      context.read<UserId>().setId(token);
     }
 
     return response.statusCode;
   }
 
-  Future<int> checkLogin() async {
+  Future<int> checkLogin(BuildContext context) async {
     final uri = Uri.parse(baseURL);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
+    context.read<UserId>().setId((prefs.getString("token") ?? ""));
     http.Response response = await http.get(uri, headers: <String, String>{
       'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
       'Content-Type': 'application/json; charset=UTF-8',

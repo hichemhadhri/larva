@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:larva/providers/userid_provider.dart';
+import 'package:provider/provider.dart';
 
 import 'constants/constants.dart';
 import 'controllers/authentificationController.dart';
@@ -9,7 +11,9 @@ import 'screens/login_screen.dart';
 import 'screens/sign_screen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MultiProvider(providers: [
+    ChangeNotifierProvider(create: (_) => UserId()),
+  ], child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +22,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final Auth _auth = Auth();
     return FutureBuilder(
-        future: _auth.checkLogin(),
+        future: _auth.checkLogin(context),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return MaterialApp(

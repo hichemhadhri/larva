@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:larva/screens/new_post_screen.dart';
 
-class Contest extends StatefulWidget {
+class ContestDetails extends StatefulWidget {
   final String name;
   final String img;
   final String prize;
   final int deadline;
-  const Contest(
+  const ContestDetails(
       {Key? key,
       required this.name,
       required this.prize,
@@ -18,10 +18,10 @@ class Contest extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ContestState createState() => _ContestState();
+  _ContestDetailsState createState() => _ContestDetailsState();
 }
 
-class _ContestState extends State<Contest> {
+class _ContestDetailsState extends State<ContestDetails> {
   Duration deadline = Duration();
   Timer? timer;
 
@@ -157,7 +157,7 @@ class _ContestState extends State<Contest> {
                   "${deadline.inDays}d ${deadline.inHours % 24}h ${deadline.inMinutes % 60}m ${deadline.inSeconds % 60}s",
                   style: Theme.of(context)
                       .textTheme
-                      .headline4!
+                      .headline5!
                       .copyWith(color: Colors.amber),
                 ),
               ],
