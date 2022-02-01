@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/models/post.dart';
 import 'package:http/http.dart' as http;
+import 'package:palette_generator/palette_generator.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -29,7 +31,15 @@ class PostController {
 
   Future<int> uploadPost(BuildContext context, File file, String title,
       String description, String domaine) async {
+    //get the dominant color
+    PaletteGenerator pg = await _updatePaletteGenerator(file);
+    String color = pg.dominantColor!.color.value.toRadixString(16);
+    print(color);
+    color = '0x' + color;
+
+    // construct the http POST request
     final uri = Uri.parse(baseURL + "posts/new");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = new http.MultipartRequest("POST", uri);
     request.headers["Authorization"] =
@@ -37,10 +47,22 @@ class PostController {
     request.fields['description'] = description;
     request.fields['title'] = title;
     request.fields['domaine'] = domaine;
+    request.fields['backgroundColor'] = color;
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
     http.StreamedResponse response = await request.send();
     if (response.statusCode == 500) {}
     return response.statusCode;
+  }
+
+  Future<PaletteGenerator> _updatePaletteGenerator(File file) async {
+    List<int> imageBase64 = file.readAsBytesSync();
+    String imageAsString = base64Encode(imageBase64);
+    Uint8List uint8list = base64.decode(imageAsString);
+    Image image = Image.memory(uint8list);
+
+    PaletteGenerator paletteGenerator =
+        await PaletteGenerator.fromImageProvider(image.image);
+    return paletteGenerator;
   }
 }

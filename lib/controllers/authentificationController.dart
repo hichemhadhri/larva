@@ -65,7 +65,7 @@ class Auth {
   Future<int> checkLogin(BuildContext context) async {
     final uri = Uri.parse(baseURL);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    context.read<UserId>().setId((prefs.getString("token") ?? ""));
+
     http.Response response = await http.get(uri, headers: <String, String>{
       'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
       'Content-Type': 'application/json; charset=UTF-8',
