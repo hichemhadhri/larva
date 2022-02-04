@@ -71,6 +71,11 @@ class Auth {
       'Content-Type': 'application/json; charset=UTF-8',
     });
 
+    if (response.statusCode == 200) {
+      String token = prefs.getString("token")!;
+      context.read<UserId>().setId(token);
+    }
+
     return response.statusCode;
   }
 }
