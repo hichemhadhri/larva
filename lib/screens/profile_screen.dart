@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:images_picker/images_picker.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/user.dart';
@@ -13,6 +16,22 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final UserController _uc = UserController();
+  bool _select = false;
+  late File _selectedMedia;
+
+  void _getAndUploadImage() async {
+    List<Media>? res = await ImagesPicker.pick(
+      count: 1,
+      pickType: PickType.all,
+      quality: 0.8, // only for android
+      maxSize: 500,
+    );
+    setState(() {
+      _selectedMedia = File(res!.first.path);
+      _select = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
@@ -34,13 +53,20 @@ class _ProfileState extends State<Profile> {
                   Center(
                     child: Column(
                       children: [
-                        CircleAvatar(
-                            radius: 100,
-                            backgroundImage: user.pdp == ""
-                                ? NetworkImage(
-                                    baseURL + "default_${user.sexe}.jpeg",
-                                  )
-                                : NetworkImage(baseURL + user.pdp)),
+                        GestureDetector(
+                          onTap: () {
+                            _getAndUploadImage();
+                          },
+                          child: CircleAvatar(
+                              radius: 100,
+                              backgroundImage: _select
+                                  ? FileImage(_selectedMedia) as ImageProvider
+                                  : user.pdp == ""
+                                      ? NetworkImage(
+                                          baseURL + "default_${user.sexe}.jpeg",
+                                        )
+                                      : NetworkImage(baseURL + user.pdp)),
+                        ),
                         SizedBox(
                           height: 20,
                         ),
