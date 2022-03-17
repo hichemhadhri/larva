@@ -30,6 +30,8 @@ class _ProfileState extends State<Profile> {
       _selectedMedia = File(res!.first.path);
       _select = true;
     });
+
+    await _uc.uploadPdp(context, widget.id, _selectedMedia);
   }
 
   @override
