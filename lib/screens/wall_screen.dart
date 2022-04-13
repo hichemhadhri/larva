@@ -26,10 +26,12 @@ class _WallState extends State<Wall> {
               controller: widget.controller,
               itemCount: posts.length,
               itemBuilder: (context, index) => PostWidget(
+                  authorPdp: posts[index].authorPdp,
                   color: posts[index].backgroundColor,
                   url: posts[index].mediaUrl,
                   title: posts[index].title,
                   description: posts[index].description,
+                  authorRef: posts[index].authorRef,
                   authorName: posts[index].authorName,
                   constests: [],
                   subject: posts[index].domaine,
