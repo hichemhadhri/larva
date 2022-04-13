@@ -51,7 +51,7 @@ class _PostWidgetState extends State<PostWidget> {
       extendBodyBehindAppBar: true,
       backgroundColor: Color(int.parse(widget.color.replaceFirst("#", "0xff"))),
       body: Padding(
-        padding: EdgeInsets.only(left: 10, right: 10, top: 50, bottom: 0),
+        padding: EdgeInsets.only(left: 0, right: 0, top: 50, bottom: 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,22 +80,11 @@ class _PostWidgetState extends State<PostWidget> {
             Expanded(
                 child: Center(
                     child: Container(
-                        height: 400,
-                        width: 400,
-                        decoration: BoxDecoration(boxShadow: [
-                          BoxShadow(
-                            color: Colors.black87,
-                            spreadRadius: 5,
-                            blurRadius: 7,
-                            offset: Offset(0, 4), // changes position of shadow
-                          ),
-                        ], border: Border.all(width: 2, color: Colors.white)),
+                        width: double.infinity,
                         child: InteractiveViewer(
-                          child: Image.network(
-                            baseURL + widget.url,
-                            filterQuality: FilterQuality.medium,
-                            fit: BoxFit.fill,
-                          ),
+                          child: Image.network(baseURL + widget.url,
+                              filterQuality: FilterQuality.high,
+                              fit: BoxFit.cover),
                         )))),
             SizedBox(height: 20),
             Text(widget.title, style: Theme.of(context).textTheme.headline6),
