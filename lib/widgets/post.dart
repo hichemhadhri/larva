@@ -12,6 +12,8 @@ class PostWidget extends StatefulWidget {
   final PageController controller;
   final String url;
   final String color;
+  final String authorRef;
+  final String authorPdp;
 
   const PostWidget(
       {Key? key,
@@ -21,6 +23,8 @@ class PostWidget extends StatefulWidget {
       required this.constests,
       required this.subject,
       required this.controller,
+      required this.authorRef,
+      required this.authorPdp,
       required this.url,
       required this.color})
       : super(key: key);
@@ -57,7 +61,8 @@ class _PostWidgetState extends State<PostWidget> {
             SizedBox(height: 50),
             Row(
               children: [
-                CircleAvatar(child: Text(widget.authorName.substring(0, 1))),
+                CircleAvatar(
+                    backgroundImage: NetworkImage(baseURL + widget.authorPdp)),
                 SizedBox(width: 10),
                 Text(widget.authorName,
                     style: Theme.of(context).textTheme.headline6),
