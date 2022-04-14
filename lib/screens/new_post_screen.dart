@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/util/SearchContest.dart';
 import 'package:larva/widgets/Tag.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class Add extends StatefulWidget {
   final String contest;

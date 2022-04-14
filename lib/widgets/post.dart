@@ -59,23 +59,21 @@ class _PostWidgetState extends State<PostWidget> {
                 child: Text(widget.subject,
                     style: Theme.of(context).textTheme.headline6)),
             SizedBox(height: 50),
-            Row(
-              children: [
-                CircleAvatar(
-                    backgroundImage: NetworkImage(baseURL + widget.authorPdp)),
-                SizedBox(width: 10),
-                Text(widget.authorName,
-                    style: Theme.of(context).textTheme.headline6),
-              ],
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                      backgroundImage:
+                          NetworkImage(baseURL + widget.authorPdp)),
+                  SizedBox(width: 10),
+                  Text(widget.authorName,
+                      style: Theme.of(context).textTheme.headline6),
+                ],
+              ),
             ),
-            Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: widget.constests
-                    .map((e) =>
-                        Text(e, style: Theme.of(context).textTheme.caption))
-                    .toList()),
             SizedBox(
-              height: 20,
+              height: 5,
             ),
             Expanded(
                 child: Center(
@@ -87,10 +85,14 @@ class _PostWidgetState extends State<PostWidget> {
                               fit: BoxFit.cover),
                         )))),
             SizedBox(height: 20),
-            Text(widget.title, style: Theme.of(context).textTheme.headline6),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(widget.title,
+                  style: Theme.of(context).textTheme.headline6),
+            ),
             SizedBox(height: 10),
             Padding(
-              padding: const EdgeInsets.only(left: 5),
+              padding: const EdgeInsets.only(left: 6),
               child: Text(widget.description,
                   style: Theme.of(context).textTheme.bodyText1),
             ),
