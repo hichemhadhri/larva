@@ -9,11 +9,29 @@ import 'controllers/authentificationController.dart';
 import 'routes/navigation.dart';
 import 'screens/login_screen.dart';
 import 'screens/sign_screen.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => UserId()),
   ], child: MyApp()));
+  configLoading();
+}
+
+void configLoading() {
+  EasyLoading.instance
+    ..displayDuration = const Duration(milliseconds: 2000)
+    ..indicatorType = EasyLoadingIndicatorType.fadingCircle
+    ..loadingStyle = EasyLoadingStyle.custom
+    ..indicatorSize = 45.0
+    ..radius = 10.0
+    ..progressColor = Colors.white
+    ..backgroundColor = Colors.black.withOpacity(0.2)
+    ..indicatorColor = Colors.white
+    ..textColor = Colors.white
+    ..maskColor = Colors.white
+    ..userInteractions = true
+    ..dismissOnTap = false;
 }
 
 class MyApp extends StatelessWidget {
@@ -26,6 +44,7 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return MaterialApp(
+              builder: EasyLoading.init(),
               debugShowCheckedModeBanner: false,
               title: 'Butterfly',
               initialRoute: snapshot.data == 200 ? "nav" : "login",
