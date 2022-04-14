@@ -5,6 +5,7 @@ import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:lazy_load_indexed_stack/lazy_load_indexed_stack.dart';
 
 class Nav extends StatefulWidget {
   const Nav({Key? key}) : super(key: key);
@@ -35,7 +36,7 @@ class _NavState extends State<Nav> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: IndexedStack(
+      body: LazyLoadIndexedStack(
         index: _selectedIndex,
         children: [
           Wall(

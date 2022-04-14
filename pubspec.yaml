@@ -39,6 +39,7 @@ dependencies:
   jwt_decode: ^0.3.1
   palette_generator: ^0.3.2
   flutter_easyloading: ^3.0.3
+  lazy_load_indexed_stack: ^0.1.3
   
 
 
