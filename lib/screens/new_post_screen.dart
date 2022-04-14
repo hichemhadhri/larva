@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import "package:images_picker/images_picker.dart";
@@ -11,6 +12,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 class Add extends StatefulWidget {
   final String contest;
   final bool custom;
+
   const Add({Key? key, this.custom = false, this.contest = ""})
       : super(key: key);
 
@@ -23,12 +25,20 @@ class _AddState extends State<Add> {
   final _title = TextEditingController();
   final _description = TextEditingController();
   int _selectedDomaine = 0;
+  Timer? _timer;
   late List<String> _constests;
 
   @override
   void initState() {
     super.initState();
     _constests = widget.contest.isEmpty ? [] : [widget.contest];
+
+    EasyLoading.addStatusCallback((status) {
+      print('EasyLoading Status $status');
+      if (status == EasyLoadingStatus.dismiss) {
+        _timer?.cancel();
+      }
+    });
   }
 
   List<String> _domaines = <String>[
@@ -67,6 +77,7 @@ class _AddState extends State<Add> {
           actions: [
             TextButton(
               onPressed: () async {
+                EasyLoading.show(status: 'Uploading...');
                 int code = await _pc.uploadPost(
                     context,
                     _selectedMedia,
@@ -74,8 +85,14 @@ class _AddState extends State<Add> {
                     _description.text,
                     _domaines.elementAt(_selectedDomaine));
                 if (code == 200) {
+                  EasyLoading.showSuccess(
+                      'Post has been sucessfully uploaded!');
                   print("done");
+                } else {
+                  EasyLoading.showError('Something went wrong!');
                 }
+
+                EasyLoading.dismiss();
               },
               child: Text(
                 "Publier",
