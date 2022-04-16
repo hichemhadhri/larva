@@ -4,6 +4,7 @@ import 'package:larva/screens/contests_screen.dart';
 import 'package:larva/screens/new_post_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:larva/screens/wall_screen.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 import 'package:lazy_load_indexed_stack/lazy_load_indexed_stack.dart';
 
@@ -17,7 +18,7 @@ class Nav extends StatefulWidget {
 class _NavState extends State<Nav> {
   //index in bottomBar
   int _selectedIndex = 0;
-  PageController controller = PageController();
+  PreloadPageController controller = PreloadPageController();
 
   //handle routing on tapping on item
   void onTapItem(int i) {

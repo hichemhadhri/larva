@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/models/post.dart';
 import 'package:larva/widgets/post.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 class Wall extends StatefulWidget {
-  final PageController controller;
+  final PreloadPageController controller;
   const Wall({Key? key, required this.controller}) : super(key: key);
 
   @override
@@ -21,7 +22,8 @@ class _WallState extends State<Wall> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final posts = snapshot.data as List<Post>;
-          return PageView.builder(
+          return PreloadPageView.builder(
+              preloadPagesCount: 1,
               scrollDirection: Axis.vertical,
               controller: widget.controller,
               itemCount: posts.length,

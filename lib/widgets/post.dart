@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:larva/constants/constants.dart';
+import 'package:preload_page_view/preload_page_view.dart';
 
 class PostWidget extends StatefulWidget {
   final String title;
@@ -9,7 +10,7 @@ class PostWidget extends StatefulWidget {
   final String authorName;
   final List<String> constests;
   final String subject;
-  final PageController controller;
+  final PreloadPageController controller;
   final String url;
   final String color;
   final String authorRef;
