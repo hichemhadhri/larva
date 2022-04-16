@@ -8,8 +8,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserController {
-  Future<User> getUserDetails(BuildContext context, String id) async {
+  Future<User> getUserDetails(String id) async {
     User? user;
+    print('fetching');
     final uri = Uri.parse(baseURL + "users/$id");
 
     http.Response response = await http.get(uri);

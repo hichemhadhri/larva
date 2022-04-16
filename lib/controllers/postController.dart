@@ -65,4 +65,20 @@ class PostController {
         await PaletteGenerator.fromImageProvider(image.image);
     return paletteGenerator;
   }
+
+  Future<Post> getPost(String ref) async {
+    Post? post;
+    final uri = Uri.parse(baseURL + "posts/post/$ref");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    http.Response response = await http.get(uri, headers: <String, String>{
+      'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
+
+    if (response.statusCode == 200) {
+      post = Post.fromJson(json.decode(response.body));
+    }
+
+    return post!;
+  }
 }

@@ -5,6 +5,8 @@ import 'package:images_picker/images_picker.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/user.dart';
+import 'package:larva/screens/post_screen.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class Profile extends StatefulWidget {
   final String id;
@@ -14,10 +16,19 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile> {
+class _ProfileState extends State<Profile>
+    with AutomaticKeepAliveClientMixin<Profile> {
   final UserController _uc = UserController();
+  late Future<User> _future;
   bool _select = false;
   late File _selectedMedia;
+
+  @override
+  void initState() {
+    _future = _uc.getUserDetails(widget.id);
+
+    super.initState();
+  }
 
   void _getAndUploadImage() async {
     List<Media>? res = await ImagesPicker.pick(
@@ -36,8 +47,9 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return FutureBuilder(
-      future: _uc.getUserDetails(context, widget.id),
+      future: _future,
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final user = snapshot.data as User;
@@ -126,23 +138,35 @@ class _ProfileState extends State<Profile> {
                   SizedBox(
                     height: 20,
                   ),
-                  Container(
-                    child: Wrap(
-                      children: <Widget>[
-                        for (int i = 0; i < user.pubs.length; i++)
-                          GestureDetector(
-                            onTap: () {},
-                            child: Container(
-                              height: MediaQuery.of(context).size.width / 3,
-                              width: MediaQuery.of(context).size.width / 3,
-                              child: Image.network(
-                                baseURL + user.pubsPhotos[i],
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                          )
-                      ],
-                    ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 0,
+                        crossAxisCount: 3),
+                    itemCount: user.pubs.length,
+                    itemBuilder: (context, i) {
+                      return GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PostScreen(
+                                      ref: user.pubs[i],
+                                      url: user.pubsPhotos[i])));
+                        },
+                        child: Hero(
+                          tag: user.pubs[i],
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  image: DecorationImage(
+                                      fit: BoxFit.cover,
+                                      image: CachedNetworkImageProvider(
+                                          baseURL + user.pubsPhotos[i])))),
+                        ),
+                      );
+                    },
                   )
                 ]),
               ));
@@ -155,4 +179,7 @@ class _ProfileState extends State<Profile> {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
