@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
                 // '/add': (context) => Add(),
                 // '/profile': (context) => Profile()
               },
-              theme: ThemeData(
+              darkTheme: ThemeData(
                 scaffoldBackgroundColor: Colors.black,
                 appBarTheme: AppBarTheme(
                     titleTextStyle: Theme.of(context).textTheme.headline4,
@@ -169,6 +169,7 @@ class MyApp extends StatelessWidget {
                       letterSpacing: 1.5),
                 ),
               ),
+              themeMode: ThemeMode.dark,
             );
           } else {
             return Center(

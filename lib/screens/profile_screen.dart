@@ -16,19 +16,11 @@ class Profile extends StatefulWidget {
   _ProfileState createState() => _ProfileState();
 }
 
-class _ProfileState extends State<Profile>
-    with AutomaticKeepAliveClientMixin<Profile> {
+class _ProfileState extends State<Profile> {
   final UserController _uc = UserController();
   late Future<User> _future;
   bool _select = false;
   late File _selectedMedia;
-
-  @override
-  void initState() {
-    _future = _uc.getUserDetails(widget.id);
-
-    super.initState();
-  }
 
   void _getAndUploadImage() async {
     List<Media>? res = await ImagesPicker.pick(
@@ -47,12 +39,13 @@ class _ProfileState extends State<Profile>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context);
     return FutureBuilder(
-      future: _future,
+      future: _uc.getUserDetails(widget.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final user = snapshot.data as User;
+          print(user.pubs.length);
+
           return Scaffold(
               appBar: AppBar(
                 brightness: Brightness.dark,
@@ -153,8 +146,8 @@ class _ProfileState extends State<Profile>
                               context,
                               MaterialPageRoute(
                                   builder: (context) => PostScreen(
-                                      ref: user.pubs[i],
-                                      url: user.pubsPhotos[i])));
+                                      author: user.surname + ' ' + user.name,
+                                      ref: user.pubs[i])));
                         },
                         child: Hero(
                           tag: user.pubs[i],
@@ -163,7 +156,7 @@ class _ProfileState extends State<Profile>
                                   image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: CachedNetworkImageProvider(
-                                          baseURL + user.pubsPhotos[i])))),
+                                          baseURL + 'posts/' + user.pubs[i])))),
                         ),
                       );
                     },
@@ -179,7 +172,4 @@ class _ProfileState extends State<Profile>
       },
     );
   }
-
-  @override
-  bool get wantKeepAlive => true;
 }

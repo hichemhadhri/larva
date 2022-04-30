@@ -81,4 +81,15 @@ class PostController {
 
     return post!;
   }
+
+  Future<int> deletePost(String ref) async {
+    final uri = Uri.parse(baseURL + "posts/$ref");
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    http.Response response = await http.delete(uri, headers: <String, String>{
+      'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
+      'Content-Type': 'application/json; charset=UTF-8',
+    });
+
+    return response.statusCode;
+  }
 }

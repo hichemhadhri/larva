@@ -6,7 +6,7 @@ class User {
   final List<dynamic> favorites;
   final String sexe;
   final List<dynamic> pubs;
-  final List<dynamic> pubsPhotos;
+
   final List<dynamic> following;
   final List<dynamic> followers;
   final String description;
@@ -22,7 +22,6 @@ class User {
     required this.favorites,
     required this.sexe,
     required this.pubs,
-    required this.pubsPhotos,
   });
 
   static User fromJson(Map<String, dynamic> json) => User(
@@ -33,7 +32,6 @@ class User {
         favorites: json['favorites'],
         sexe: json['sexe'],
         pubs: json['pubs'],
-        pubsPhotos: json['pubsPhotos'],
         description: json['description'],
         following: json['following'],
         followers: json['followers'],
