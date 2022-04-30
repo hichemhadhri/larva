@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +8,8 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/models/post.dart';
+import 'package:larva/providers/dbstate_provider.dart';
+import 'package:provider/provider.dart';
 
 class PostScreen extends StatefulWidget {
   final String ref;
@@ -101,7 +105,7 @@ class _PostScreenState extends State<PostScreen> {
             height: MediaQuery.of(context).size.height / 3.5,
             child: Container(
               decoration: BoxDecoration(
-                  color: Colors.grey[900],
+                  color: Colors.black87,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
@@ -114,9 +118,7 @@ class _PostScreenState extends State<PostScreen> {
                           context,
                           _options[i],
                           _options[i] == 'Delete' ? Colors.red : Colors.white,
-                          i == 3
-                              ? _pc.deletePost(widget.ref)
-                              : Future.value(2)),
+                          widget.ref),
                       itemCount: 4)),
             ),
           );
@@ -125,14 +127,25 @@ class _PostScreenState extends State<PostScreen> {
 
   List<String> _options = ['Modify', 'Report', 'Share', 'Delete'];
   Widget _modalItem(
-      BuildContext context, String title, Color color, Future<int> onPressed) {
+      BuildContext context, String title, Color color, String ref) {
     return GestureDetector(
       onTap: () async {
         EasyLoading.show(status: 'Deleting post...');
-        int result = await onPressed;
+        int result;
+        switch (title) {
+          case 'Delete':
+            result = await _pc.deletePost(ref);
+            break;
+          default:
+            result = await Future.delayed(Duration(seconds: 2), () {
+              return 2;
+            });
+            break;
+        }
         if (result == 200) {
           EasyLoading.showSuccess('Post has been sucessfully deleted!');
           Navigator.pop(context);
+          context.read<DbState>().setState();
           Navigator.pop(context);
         } else {
           EasyLoading.showError('Something went wrong!');

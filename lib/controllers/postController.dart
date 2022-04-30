@@ -83,6 +83,7 @@ class PostController {
   }
 
   Future<int> deletePost(String ref) async {
+    print('deletepost');
     final uri = Uri.parse(baseURL + "posts/$ref");
     SharedPreferences prefs = await SharedPreferences.getInstance();
     http.Response response = await http.delete(uri, headers: <String, String>{

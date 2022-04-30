@@ -5,8 +5,10 @@ import 'package:images_picker/images_picker.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/user.dart';
+import 'package:larva/providers/dbstate_provider.dart';
 import 'package:larva/screens/post_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
   final String id;
@@ -18,7 +20,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final UserController _uc = UserController();
-  late Future<User> _future;
+
   bool _select = false;
   late File _selectedMedia;
 
@@ -39,6 +41,7 @@ class _ProfileState extends State<Profile> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<DbState>().state;
     return FutureBuilder(
       future: _uc.getUserDetails(widget.id),
       builder: (context, snapshot) {

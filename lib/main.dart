@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:larva/providers/dbstate_provider.dart';
 import 'package:larva/providers/userid_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -14,6 +15,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 void main() {
   runApp(MultiProvider(providers: [
     ChangeNotifierProvider(create: (_) => UserId()),
+    ChangeNotifierProvider(create: (_) => DbState())
   ], child: MyApp()));
   configLoading();
 }
