@@ -143,7 +143,7 @@ class _PostScreenState extends State<PostScreen> {
             break;
         }
         if (result == 200) {
-          EasyLoading.showSuccess('Post has been sucessfully deleted!');
+          await EasyLoading.showSuccess('Post has been sucessfully deleted!');
           Navigator.pop(context);
           context.read<DbState>().setState();
           Navigator.pop(context);

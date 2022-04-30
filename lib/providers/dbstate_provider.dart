@@ -3,12 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:jwt_decode/jwt_decode.dart';
 
 class DbState with ChangeNotifier {
-  int _state = 0;
+  bool _state = false;
 
-  int get state => _state;
+  bool get state => _state;
 
   void setState() {
-    _state++;
+    _state = !_state;
     notifyListeners();
   }
 }
