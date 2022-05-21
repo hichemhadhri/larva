@@ -11,6 +11,10 @@ class CustomWidget extends StatelessWidget {
       : this.shapeBorder = const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(5)));
 
+  const CustomWidget.notRounded(
+      {this.width = double.infinity, required this.height})
+      : this.shapeBorder = const RoundedRectangleBorder();
+
   const CustomWidget.circular(
       {this.width = double.infinity,
       required this.height,

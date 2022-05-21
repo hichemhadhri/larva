@@ -8,6 +8,7 @@ import 'package:larva/models/user.dart';
 import 'package:larva/providers/dbstate_provider.dart';
 import 'package:larva/screens/post_screen.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:larva/widgets/customWidget.dart';
 import 'package:provider/provider.dart';
 
 class Profile extends StatefulWidget {
@@ -167,10 +168,83 @@ class _ProfileState extends State<Profile> {
                 ]),
               ));
         } else {
-          return Center(
-              child: CircularProgressIndicator(
-            color: Colors.amber,
-          ));
+          return Scaffold(
+              appBar: AppBar(
+                brightness: Brightness.dark,
+                title: CustomWidget.rectangular(height: 10, width: 150),
+                centerTitle: true,
+                automaticallyImplyLeading: false,
+                actions: [],
+              ),
+              body: SingleChildScrollView(
+                child: Column(children: [
+                  SizedBox(height: 20),
+                  Center(
+                    child: Column(
+                      children: [
+                        CustomWidget.circular(height: 200, width: 200),
+                        SizedBox(
+                          height: 20,
+                        ),
+                        CustomWidget.rectangular(height: 10, width: 50),
+                        SizedBox(height: 20),
+                        Container(
+                          margin:
+                              EdgeInsets.symmetric(vertical: 0, horizontal: 50),
+                          alignment: Alignment.center,
+                          child:
+                              CustomWidget.rectangular(height: 10, width: 200),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Container(
+                    margin: EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Column(
+                          children: <Widget>[
+                            CustomWidget.rectangular(height: 10, width: 20),
+                            SizedBox(height: 5),
+                            CustomWidget.rectangular(height: 10, width: 50),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            CustomWidget.rectangular(height: 10, width: 20),
+                            SizedBox(height: 5),
+                            CustomWidget.rectangular(height: 10, width: 50),
+                          ],
+                        ),
+                        Column(
+                          children: <Widget>[
+                            CustomWidget.rectangular(height: 10, width: 20),
+                            SizedBox(height: 5),
+                            CustomWidget.rectangular(height: 10, width: 50),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(
+                    height: 20,
+                  ),
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisSpacing: 0,
+                        mainAxisSpacing: 0,
+                        crossAxisCount: 3),
+                    itemCount: 9,
+                    itemBuilder: (context, i) {
+                      return CustomWidget.notRounded(height: 30, width: 30);
+                    },
+                  )
+                ]),
+              ));
         }
       },
     );
