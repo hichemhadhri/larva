@@ -58,7 +58,7 @@ class _AddState extends State<Add> {
       count: 1,
       pickType: PickType.all,
       quality: 0.8, // only for android
-      maxSize: 100,
+      maxSize: 250,
     );
     setState(() {
       _selectedMedia = File(res!.first.path);

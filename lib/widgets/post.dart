@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:preload_page_view/preload_page_view.dart';
+import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 
 class PostWidget extends StatefulWidget {
   final String title;
