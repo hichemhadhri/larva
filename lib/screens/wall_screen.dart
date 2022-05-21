@@ -23,7 +23,7 @@ class _WallState extends State<Wall> {
         if (snapshot.hasData) {
           final posts = snapshot.data as List<Post>;
           return PreloadPageView.builder(
-              preloadPagesCount: 1,
+              preloadPagesCount: 4,
               scrollDirection: Axis.vertical,
               controller: widget.controller,
               itemCount: posts.length,
