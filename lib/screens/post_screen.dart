@@ -9,6 +9,7 @@ import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/models/post.dart';
 import 'package:larva/providers/dbstate_provider.dart';
+import 'package:larva/widgets/customWidget.dart';
 import 'package:provider/provider.dart';
 
 class PostScreen extends StatefulWidget {
@@ -85,10 +86,22 @@ class _PostScreenState extends State<PostScreen> {
                       ],
                     );
                   } else {
-                    return Center(
-                        child: CircularProgressIndicator(
-                      color: Colors.amber,
-                    ));
+                    return Column(
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        CustomWidget.rectangular(height: 15, width: 100),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        CustomWidget.rectangular(height: 15, width: 200),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        CustomWidget.rectangular(height: 15, width: 50),
+                      ],
+                    );
                   }
                 })
           ],
