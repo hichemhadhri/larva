@@ -1,9 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:preload_page_view/preload_page_view.dart';
-import 'package:fancy_shimmer_image/fancy_shimmer_image.dart';
 
 class PostWidget extends StatefulWidget {
   final String title;
@@ -66,8 +66,9 @@ class _PostWidgetState extends State<PostWidget> {
               child: Row(
                 children: [
                   CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(baseURL + widget.authorPdp)),
+                      backgroundColor: Colors.grey,
+                      backgroundImage: CachedNetworkImageProvider(
+                          baseURL + widget.authorPdp)),
                   SizedBox(width: 10),
                   Text(widget.authorName,
                       style: Theme.of(context).textTheme.headline6),
@@ -82,7 +83,8 @@ class _PostWidgetState extends State<PostWidget> {
                     child: Container(
                         width: double.infinity,
                         child: InteractiveViewer(
-                          child: Image.network(baseURL + widget.url,
+                          child: CachedNetworkImage(
+                              imageUrl: baseURL + widget.url,
                               filterQuality: FilterQuality.high,
                               fit: BoxFit.cover),
                         )))),

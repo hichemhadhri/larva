@@ -43,7 +43,7 @@ dependencies:
   cached_network_image: ^3.2.0
   preload_page_view: ^0.1.6
   adaptive_action_sheet: ^2.0.1
-  fancy_shimmer_image: ^2.0.2
+  shimmer: ^2.0.0
  
   
  
