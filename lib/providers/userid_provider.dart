@@ -9,7 +9,7 @@ class UserId with ChangeNotifier {
 
   void setId(String token) {
     final decodedToken = Jwt.parseJwt(token);
-    _id = decodedToken["user"]["_id"];
+    _id = decodedToken["userId"];
     notifyListeners();
   }
 }

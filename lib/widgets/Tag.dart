@@ -18,7 +18,7 @@ class Tag extends StatelessWidget {
           padding: const EdgeInsets.all(3.0),
           child: Text(
             string,
-            style: Theme.of(context).textTheme.bodyText1,
+            style: Theme.of(context).textTheme.bodyLarge,
           ),
         ));
   }

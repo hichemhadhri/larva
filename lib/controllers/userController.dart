@@ -10,7 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class UserController {
   Future<User> getUserDetails(String id) async {
     User? user;
-    print('fetching');
+
     final uri = Uri.parse(baseURL + "users/$id");
 
     http.Response response = await http.get(uri);
@@ -23,8 +23,8 @@ class UserController {
   }
 
   Future<void> uploadPdp(BuildContext context, String id, File pdp) async {
-    final uri = Uri.parse(baseURL + "users/$id");
-    print('hello');
+    final uri = Uri.parse(baseURL + "users/$id/picture");
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var request = new http.MultipartRequest("PUT", uri);
     request.headers["Authorization"] =

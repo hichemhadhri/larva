@@ -1,57 +1,76 @@
 class Post {
-  final String backgroundColor;
-
-  final int priority;
-  final int rating;
-  final int views;
-  final int superlikes;
-  final String id;
-  final List<dynamic> contests;
-  final String description;
   final String title;
-  final String domaine;
-  final String type;
-  final String authorName;
-  final String authorPdp;
-  final String authorRef;
+  final String description;
+  final String author;
   final String mediaUrl;
+  final String mediaType;
+  final List<String> contests;
+  final List<Rating> ratings;
+  final double averageRating;
+  final double averageTimeSpent;
   final String createdAt;
+  final String updatedAt;
+  final List<String> fans;
+  final String backgroundColor;
+  final List<String> domaines;
+  final String id;
 
   Post({
-    required this.contests,
-    required this.backgroundColor,
-    required this.priority,
-    required this.rating,
-    required this.views,
-    required this.superlikes,
-    required this.id,
-    required this.description,
     required this.title,
-    required this.domaine,
-    required this.type,
-    required this.authorName,
-    required this.authorPdp,
-    required this.authorRef,
+    required this.description,
+    required this.author,
     required this.mediaUrl,
+    required this.mediaType,
+    required this.contests,
+    required this.ratings,
+    required this.averageRating,
+    required this.averageTimeSpent,
     required this.createdAt,
+    required this.updatedAt,
+    required this.fans,
+    required this.backgroundColor,
+    required this.domaines,
+    required this.id,
   });
 
-  static Post fromJson(Map<String, dynamic> json) => Post(
-        contests: json['contests'],
-        backgroundColor: json['backgroundColor'],
-        priority: json['priority'],
-        rating: json['rating'],
-        views: json['views'],
-        superlikes: json['superlikes'],
-        id: json['_id'],
-        description: json['description'],
-        title: json['title'],
-        domaine: json['domaine'],
-        type: json['type'],
-        authorName: json['authorName'],
-        authorPdp: json['authorPdp'],
-        authorRef: json['authorRef'],
-        mediaUrl: json['mediaUrl'],
-        createdAt: json['createdAt'],
-      );
+  factory Post.fromJson(Map<String, dynamic> json) {
+    return Post(
+      title: json['title'],
+      description: json['description'],
+      author: json['author'],
+      mediaUrl: json['mediaUrl'],
+      mediaType: json['mediaType'],
+      contests: List<String>.from(json['contests']),
+      ratings:
+          (json['ratings'] as List).map((i) => Rating.fromJson(i)).toList(),
+      averageRating: json['averageRating'].toDouble(),
+      averageTimeSpent: json['averageTimeSpent'].toDouble(),
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      fans: List<String>.from(json['fans']),
+      backgroundColor: json['backgroundColor'],
+      domaines: List<String>.from(json['domains']),
+      id: json['_id'],
+    );
+  }
+}
+
+class Rating {
+  final String user;
+  final int rating;
+  final int timespent;
+
+  Rating({
+    required this.user,
+    required this.rating,
+    required this.timespent,
+  });
+
+  factory Rating.fromJson(Map<String, dynamic> json) {
+    return Rating(
+      user: json['user'],
+      rating: json['rating'],
+      timespent: json['timespent'] ?? 0,
+    );
+  }
 }

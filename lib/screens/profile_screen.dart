@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:images_picker/images_picker.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/userController.dart';
@@ -48,15 +49,14 @@ class _ProfileState extends State<Profile> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final user = snapshot.data as User;
-          print(user.pubs.length);
 
           return Scaffold(
               appBar: AppBar(
-                brightness: Brightness.dark,
                 title: Text("${user.surname}_${user.name}"),
                 centerTitle: true,
                 automaticallyImplyLeading: false,
                 actions: [],
+                systemOverlayStyle: SystemUiOverlayStyle.light,
               ),
               body: SingleChildScrollView(
                 child: Column(children: [
@@ -69,29 +69,33 @@ class _ProfileState extends State<Profile> {
                             _getAndUploadImage();
                           },
                           child: CircleAvatar(
-                              radius: 100,
-                              backgroundImage: _select
-                                  ? FileImage(_selectedMedia) as ImageProvider
-                                  : user.pdp == ""
-                                      ? NetworkImage(
-                                          baseURL + "default_${user.sexe}.jpeg",
-                                        )
-                                      : NetworkImage(baseURL + user.pdp)),
+                            radius: 100,
+                            backgroundImage: _select
+                                ? FileImage(_selectedMedia) as ImageProvider
+                                : user.profilePicture == ""
+                                    ? null
+                                    : NetworkImage(
+                                        baseURL + user.profilePicture),
+                            child: user.profilePicture == "" && !_select
+                                ? Container(
+                                    color: Colors.grey,
+                                  )
+                                : null,
+                          ),
                         ),
                         SizedBox(
                           height: 20,
                         ),
                         Text(
                           "${user.surname} ${user.name}",
-                          style: Theme.of(context).textTheme.headline6,
+                          style: Theme.of(context).textTheme.titleLarge,
                         ),
                         SizedBox(height: 20),
                         Container(
                           margin:
                               EdgeInsets.symmetric(vertical: 0, horizontal: 50),
                           alignment: Alignment.center,
-                          child: Text(user.description,
-                              textAlign: TextAlign.center),
+                          child: Text(user.bio, textAlign: TextAlign.center),
                         ),
                       ],
                     ),
@@ -105,7 +109,7 @@ class _ProfileState extends State<Profile> {
                         Column(
                           children: <Widget>[
                             Text(
-                              user.pubs.length.toString(),
+                              user.posts.length.toString(),
                               style: TextStyle(fontWeight: FontWeight.w600),
                             ),
                             Text('Post')
@@ -142,7 +146,7 @@ class _ProfileState extends State<Profile> {
                         crossAxisSpacing: 0,
                         mainAxisSpacing: 0,
                         crossAxisCount: 3),
-                    itemCount: user.pubs.length,
+                    itemCount: user.posts.length,
                     itemBuilder: (context, i) {
                       return GestureDetector(
                         onTap: () {
@@ -150,17 +154,19 @@ class _ProfileState extends State<Profile> {
                               context,
                               MaterialPageRoute(
                                   builder: (context) => PostScreen(
-                                      author: user.surname + ' ' + user.name,
-                                      ref: user.pubs[i])));
+                                      author: user.surname + user.name,
+                                      ref: user.posts[i])));
                         },
                         child: Hero(
-                          tag: user.pubs[i],
+                          tag: user.posts[i],
                           child: Container(
                               decoration: BoxDecoration(
                                   image: DecorationImage(
                                       fit: BoxFit.cover,
                                       image: CachedNetworkImageProvider(
-                                          baseURL + 'posts/' + user.pubs[i])))),
+                                          baseURL +
+                                              'posts/' +
+                                              user.posts[i])))),
                         ),
                       );
                     },
@@ -170,11 +176,11 @@ class _ProfileState extends State<Profile> {
         } else {
           return Scaffold(
               appBar: AppBar(
-                brightness: Brightness.dark,
                 title: CustomWidget.rectangular(height: 10, width: 150),
                 centerTitle: true,
                 automaticallyImplyLeading: false,
                 actions: [],
+                systemOverlayStyle: SystemUiOverlayStyle.light,
               ),
               body: SingleChildScrollView(
                 child: Column(children: [

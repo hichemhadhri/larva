@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:larva/constants/constants.dart';
-import 'package:larva/widgets/input.dart';
 
 class Sign extends StatefulWidget {
   const Sign({Key? key}) : super(key: key);
@@ -41,70 +40,90 @@ class _SignState extends State<Sign> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        resizeToAvoidBottomInset: true,
-        appBar: AppBar(
-          brightness: Brightness.dark,
-          elevation: 0,
-          backgroundColor: Colors.transparent,
-        ),
-        backgroundColor: Theme.of(context).backgroundColor,
-        body: SingleChildScrollView(
+      resizeToAvoidBottomInset: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle.light,
+      ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: SingleChildScrollView(
           child: Padding(
             padding: c_padding,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text("Larva", style: Theme.of(context).textTheme.headline3),
-                SizedBox(height: 100),
-                Input(
-                    controller: name,
-                    error: nameError,
-                    errorText: 'Invalid Name',
-                    hint: 'Name'),
-                Input(
-                    controller: surname,
-                    error: surnameError,
-                    errorText: 'Invalid surname',
-                    hint: 'Surname'),
-                Input(
-                    controller: birth,
-                    error: surnameError,
-                    errorText: 'You must be over 13',
-                    hint: 'Birth'),
-                Input(
-                    controller: email,
-                    error: surnameError,
-                    errorText: 'Invalid email',
-                    hint: 'Email'),
-                Input(
+                Text("Larva", style: Theme.of(context).textTheme.displaySmall),
+                SizedBox(height: 40),
+                TextField(
+                  controller: name,
+                  decoration: InputDecoration(
+                    errorText: nameError ? 'Invalid Name' : null,
+                    hintText: 'Name',
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: surname,
+                  decoration: InputDecoration(
+                    errorText: surnameError ? 'Invalid surname' : null,
+                    hintText: 'Surname',
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: birth,
+                  decoration: InputDecoration(
+                    errorText: birthError ? 'You must be over 13' : null,
+                    hintText: 'Birth',
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
+                  controller: email,
+                  decoration: InputDecoration(
+                    errorText: emailError ? 'Invalid email' : null,
+                    hintText: 'Email',
+                  ),
+                ),
+                SizedBox(height: 20),
+                TextField(
                   controller: password,
-                  error: surnameError,
-                  errorText: 'Password must be over 8 characters',
-                  hint: 'Password',
-                  obscure: true,
+                  decoration: InputDecoration(
+                    errorText: passwordError
+                        ? 'Password must be over 8 characters'
+                        : null,
+                    hintText: 'Password',
+                  ),
+                  obscureText: true,
                 ),
-                Input(
-                    controller: confirmPassword,
-                    error: surnameError,
-                    errorText: 'Ppasswords do not much',
-                    hint: 'Confirm password',
-                    obscure: true),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 50,
+                SizedBox(height: 20),
+                TextField(
+                  controller: confirmPassword,
+                  decoration: InputDecoration(
+                    errorText: confirmError ? 'Passwords do not match' : null,
+                    hintText: 'Confirm password',
+                  ),
+                  obscureText: true,
                 ),
+                SizedBox(height: 30),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
-                        child: Text("Sign up"),
-                        onPressed: () {
-                          Navigator.pushNamed(context, "nav");
-                        }),
+                      child: Text("Sign up"),
+                      onPressed: () {
+                        Navigator.pushNamed(context, "nav");
+                      },
+                    ),
                   ],
-                )
+                ),
               ],
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }

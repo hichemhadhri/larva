@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:larva/controllers/authentificationController.dart';
 
@@ -32,7 +30,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
         resizeToAvoidBottomInset: true,
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 50),
           child: SingleChildScrollView(
@@ -46,7 +44,7 @@ class _LoginState extends State<Login> {
                 ),
                 Center(
                   child: Text("Butterfly",
-                      style: Theme.of(context).textTheme.headline5),
+                      style: Theme.of(context).textTheme.headlineSmall),
                 ),
                 SizedBox(height: MediaQuery.of(context).size.height / 9),
                 TextField(
@@ -62,7 +60,6 @@ class _LoginState extends State<Login> {
                     errorText: errorPassword,
                     hintText: 'Password',
                   ),
-                  obscureText: true,
                 ),
                 SizedBox(
                   height: MediaQuery.of(context).size.height / 20,
@@ -86,6 +83,7 @@ class _LoginState extends State<Login> {
                             errorEmail = null;
                             errorPassword = null;
                           });
+                          print('authentificated');
                           Navigator.pushNamed(context, "nav");
                         } else if (result == 404) {
                           setState(() {

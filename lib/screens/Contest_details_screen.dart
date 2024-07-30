@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:larva/screens/new_post_screen.dart';
 
@@ -50,7 +51,6 @@ class _ContestDetailsState extends State<ContestDetails> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
         title: Text(widget.name),
         actions: [
           TextButton(
@@ -63,10 +63,10 @@ class _ContestDetailsState extends State<ContestDetails> {
                             contest: widget.name.replaceAll(" ", "_"))));
               },
               child: Text("join",
-                  style: Theme.of(context).textTheme.headline6!.copyWith(
+                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
                         color: Colors.amber,
                       )))
-        ],
+        ], systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -92,14 +92,14 @@ class _ContestDetailsState extends State<ContestDetails> {
                             ),
                             Text(
                               widget.name,
-                              style: Theme.of(context).textTheme.headline6,
+                              style: Theme.of(context).textTheme.titleLarge,
                             ),
                             SizedBox(
                               width: 10,
                             ),
                             ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  primary: Colors.transparent,
+                                  backgroundColor: Colors.transparent,
                                 ),
                                 onPressed: () {},
                                 icon: Icon(
@@ -148,7 +148,7 @@ class _ContestDetailsState extends State<ContestDetails> {
               children: [
                 Text(
                   "Time Left : ",
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
                 SizedBox(
                   width: 10,
@@ -157,7 +157,7 @@ class _ContestDetailsState extends State<ContestDetails> {
                   "${deadline.inDays}d ${deadline.inHours % 24}h ${deadline.inMinutes % 60}m ${deadline.inSeconds % 60}s",
                   style: Theme.of(context)
                       .textTheme
-                      .headline5!
+                      .headlineSmall!
                       .copyWith(color: Colors.amber),
                 ),
               ],

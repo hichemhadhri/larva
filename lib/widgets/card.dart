@@ -66,22 +66,22 @@ class ContestCard extends StatelessWidget {
           children: [
             Text(
               title.replaceAll(" ", "_"),
-              style: _textTheme.headline5!.copyWith(color: Colors.black),
+              style: _textTheme.headlineSmall!.copyWith(color: Colors.black),
             ),
             Text(
               creatorName,
-              style: _textTheme.subtitle1!.copyWith(color: Colors.black87),
+              style: _textTheme.titleMedium!.copyWith(color: Colors.black87),
             ),
             Row(
               children: c_icons.sublist(0, 3),
             ),
             Text(
               "Prize : $prize",
-              style: _textTheme.bodyText1!.copyWith(color: Colors.black),
+              style: _textTheme.bodyLarge!.copyWith(color: Colors.black),
             ),
             Text(
                 "Deadline: ${_deadline.inDays}d ${_deadline.inHours % 24}h ${_deadline.inMinutes % 60}m ${_deadline.inSeconds % 60}s",
-                style: _textTheme.bodyText1!.copyWith(color: Colors.black))
+                style: _textTheme.bodyLarge!.copyWith(color: Colors.black))
           ],
         ),
       ),

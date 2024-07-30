@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class SearchContest extends SearchDelegate<String> {
   SearchContest();
+
   final enrolledContexts = [
     "Chalba9_l'emission",
     "Paint_your_way",
@@ -25,32 +26,63 @@ class SearchContest extends SearchDelegate<String> {
 
   @override
   List<Widget> buildActions(BuildContext context) {
-    return [IconButton(onPressed: () {}, icon: Icon(Icons.clear))];
+    return [
+      IconButton(
+        onPressed: () {
+          query = '';
+          showSuggestions(context);
+        },
+        icon: Icon(Icons.clear),
+      ),
+    ];
   }
 
   @override
   Widget buildLeading(BuildContext context) {
-    return IconButton(onPressed: () {}, icon: Icon(Icons.arrow_back));
+    return IconButton(
+      onPressed: () {
+        close(context, '');
+      },
+      icon: Icon(Icons.arrow_back),
+    );
   }
 
+  @override
   ThemeData appBarTheme(BuildContext context) {
     return ThemeData(
       appBarTheme: AppBarTheme(color: Colors.black),
-      backgroundColor: Colors.black,
       inputDecorationTheme: Theme.of(context).inputDecorationTheme,
       hintColor: Color(0xFFC1C1C1),
       textTheme: TextTheme(
-        headline6: TextStyle(
+        titleLarge: TextStyle(
           color: Colors.white,
           fontSize: 18,
         ),
+      ),
+      colorScheme: ColorScheme(
+        brightness: Brightness.dark,
+        primary: Colors.black,
+        onPrimary: Colors.white,
+        secondary: Colors.grey,
+        onSecondary: Colors.white,
+        error: Colors.red,
+        onError: Colors.white,
+        background: Colors.black,
+        onBackground: Colors.white,
+        surface: Colors.black,
+        onSurface: Colors.white,
       ),
     );
   }
 
   @override
   Widget buildResults(BuildContext context) {
-    return Text(query);
+    return Center(
+      child: Text(
+        query,
+        style: Theme.of(context).textTheme.headlineMedium,
+      ),
+    );
   }
 
   @override
@@ -59,7 +91,7 @@ class SearchContest extends SearchDelegate<String> {
         ? enrolledContexts
         : allContexts.where((contest) {
             final contestLower = contest.toLowerCase();
-            final queryLower = query..replaceAll(" ", "_").toLowerCase();
+            final queryLower = query.replaceAll(" ", "_").toLowerCase();
 
             return contestLower.startsWith(queryLower);
           }).toList();
@@ -70,7 +102,7 @@ class SearchContest extends SearchDelegate<String> {
   Widget buildSuggestionsSuccess(
           BuildContext context, List<String> suggestions) =>
       Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         body: ListView.builder(
           itemCount: suggestions.length,
           itemBuilder: (context, index) {
@@ -81,22 +113,22 @@ class SearchContest extends SearchDelegate<String> {
             return ListTile(
               onTap: () {
                 query = suggestion;
-
                 close(context, query);
               },
               leading: Icon(
                 Icons.star,
                 color: Colors.white,
               ),
-              // title: Text(suggestion),
               title: RichText(
                 text: TextSpan(
                   text: queryText,
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                   children: [
                     TextSpan(
                       text: remainingText,
-                      style: Theme.of(context).textTheme.headline6,
+                      style: Theme.of(context).textTheme.titleLarge,
                     ),
                   ],
                 ),

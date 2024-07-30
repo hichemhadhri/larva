@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class Input extends StatefulWidget {
   final TextEditingController controller;
@@ -14,7 +13,7 @@ class Input extends StatefulWidget {
       required this.controller,
       required this.error,
       required this.errorText,
-      this.obscure: false,
+      this.obscure = false,
       required this.hint})
       : super(key: key);
 

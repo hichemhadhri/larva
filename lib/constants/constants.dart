@@ -4,7 +4,7 @@ import 'package:flutter_tabler_icons/flutter_tabler_icons.dart';
 const c_padding = EdgeInsets.symmetric(horizontal: 50, vertical: 20);
 const gold = Color(0xFFFDAF01);
 
-const baseURL = "http://192.168.1.232:3000/";
+const baseURL = "http://127.0.0.1:3000/";
 
 const List<MaterialColor> colors = [
   Colors.red,

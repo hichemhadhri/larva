@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/models/post.dart';
 import 'package:larva/widgets/customWidget.dart';
 import 'package:larva/widgets/post.dart';
 import 'package:preload_page_view/preload_page_view.dart';
-import 'package:shimmer/shimmer.dart';
 
 class Wall extends StatefulWidget {
   final PreloadPageController controller;
@@ -24,29 +24,21 @@ class _WallState extends State<Wall> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final posts = snapshot.data as List<Post>;
+
           return PreloadPageView.builder(
               preloadPagesCount: 4,
               scrollDirection: Axis.vertical,
               controller: widget.controller,
               itemCount: posts.length,
               itemBuilder: (context, index) => PostWidget(
-                  authorPdp: posts[index].authorPdp,
-                  color: posts[index].backgroundColor,
-                  url: posts[index].mediaUrl,
-                  title: posts[index].title,
-                  description: posts[index].description,
-                  authorRef: posts[index].authorRef,
-                  authorName: posts[index].authorName,
-                  constests: [],
-                  subject: posts[index].domaine,
-                  controller: widget.controller));
+                  post: posts[index], controller: widget.controller));
         } else {
           return Scaffold(
             appBar: AppBar(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,
-              brightness: Brightness.dark,
               automaticallyImplyLeading: false,
+              systemOverlayStyle: SystemUiOverlayStyle.light,
             ),
             extendBodyBehindAppBar: true,
             backgroundColor: Colors.black,

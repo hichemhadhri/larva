@@ -18,7 +18,7 @@ class Auth {
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String>{
-          "mail": mail,
+          "email": mail,
           "password": password,
         }));
 
@@ -65,7 +65,6 @@ class Auth {
   Future<int> checkLogin(BuildContext context) async {
     final uri = Uri.parse(baseURL);
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     http.Response response = await http.get(uri, headers: <String, String>{
       'Authorization': 'Bearer ' + (prefs.getString("token") ?? ""),
       'Content-Type': 'application/json; charset=UTF-8',
@@ -73,9 +72,9 @@ class Auth {
 
     if (response.statusCode == 200) {
       String token = prefs.getString("token")!;
+
       context.read<UserId>().setId(token);
     }
-
     return response.statusCode;
   }
 }

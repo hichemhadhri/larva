@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:larva/controllers/contestController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/screens/new_contest_screen.dart';
@@ -16,16 +17,15 @@ class _ContestScreenState extends State<ContestScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
+        backgroundColor: Theme.of(context).colorScheme.surface,
         appBar: AppBar(
-          brightness: Brightness.dark,
           automaticallyImplyLeading: false,
           title: Text("Contests"),
           actions: [
             IconButton(onPressed: () {}, icon: Icon(Icons.search)),
             ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  primary: Colors.transparent,
+                  backgroundColor: Colors.transparent,
                 ),
                 onPressed: () {
                   Navigator.push(context,
@@ -39,16 +39,16 @@ class _ContestScreenState extends State<ContestScreen> {
                   "New Contest",
                   style: Theme.of(context)
                       .textTheme
-                      .bodyText2!
+                      .bodyMedium!
                       .copyWith(color: Colors.amber),
                 )),
-          ],
+          ], systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SizedBox(
             height: 20,
           ),
-          Text('Hot Right Now', style: Theme.of(context).textTheme.headline4),
+          Text('Hot Right Now', style: Theme.of(context).textTheme.headlineMedium),
           SizedBox(
             height: 20,
           ),
@@ -86,7 +86,7 @@ class _ContestScreenState extends State<ContestScreen> {
           SizedBox(
             height: 20,
           ),
-          Text('Near You', style: Theme.of(context).textTheme.headline4),
+          Text('Near You', style: Theme.of(context).textTheme.headlineMedium),
           SizedBox(
             height: 20,
           ),

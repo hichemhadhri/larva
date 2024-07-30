@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/postController.dart';
@@ -30,7 +29,6 @@ class _PostScreenState extends State<PostScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          brightness: Brightness.dark,
           centerTitle: true,
           automaticallyImplyLeading: false,
           actions: [
@@ -40,13 +38,14 @@ class _PostScreenState extends State<PostScreen> {
                 },
                 icon: Icon(Icons.more_horiz))
           ],
+          systemOverlayStyle: SystemUiOverlayStyle.light,
         ),
         body: Column(
           children: [
             Center(
               child: Text(
                 widget.author,
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.titleLarge,
               ),
             ),
             SizedBox(height: 10),
@@ -62,7 +61,7 @@ class _PostScreenState extends State<PostScreen> {
               height: 20,
             ),
             FutureBuilder(
-                future: _pc.getPost(widget.ref),
+                future: _pc.getPost(context, widget.ref),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final post = snapshot.data as Post;
@@ -72,17 +71,17 @@ class _PostScreenState extends State<PostScreen> {
                           height: 10,
                         ),
                         Text(post.title,
-                            style: Theme.of(context).textTheme.headline5),
+                            style: Theme.of(context).textTheme.headlineSmall),
                         SizedBox(
                           height: 10,
                         ),
                         Text(post.description,
-                            style: Theme.of(context).textTheme.subtitle1),
+                            style: Theme.of(context).textTheme.titleMedium),
                         SizedBox(
                           height: 10,
                         ),
                         Text(post.createdAt.substring(0, 10),
-                            style: Theme.of(context).textTheme.caption)
+                            style: Theme.of(context).textTheme.bodySmall)
                       ],
                     );
                   } else {
@@ -144,27 +143,18 @@ class _PostScreenState extends State<PostScreen> {
     return GestureDetector(
       onTap: () async {
         EasyLoading.show(status: 'Deleting post...');
-        int result;
         switch (title) {
           case 'Delete':
-            result = await _pc.deletePost(ref);
+            await _pc.deletePost(context, ref);
             break;
           default:
-            result = await Future.delayed(Duration(seconds: 2), () {
-              return 2;
-            });
+            await Future.delayed(Duration(seconds: 2), () {});
             break;
         }
-        if (result == 200) {
-          await EasyLoading.showSuccess('Post has been sucessfully deleted!');
-          Navigator.pop(context);
-          context.read<DbState>().setState();
-          Navigator.pop(context);
-        } else {
-          EasyLoading.showError('Something went wrong!');
-        }
-
         EasyLoading.dismiss();
+        Navigator.pop(context);
+        context.read<DbState>().setState();
+        Navigator.pop(context);
       },
       child: Container(
         decoration: BoxDecoration(
@@ -175,7 +165,7 @@ class _PostScreenState extends State<PostScreen> {
           child: Text(title,
               style: Theme.of(context)
                   .textTheme
-                  .subtitle1!
+                  .titleMedium!
                   .copyWith(color: color, fontSize: 20)),
         ),
       ),
