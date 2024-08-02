@@ -1,46 +1,80 @@
 class Contest {
+  final String name;
   final String description;
-  final String title;
-
-  final String creatorName;
-
-  final String creatorRef;
   final String mediaUrl;
-  final String createdAt;
+  final String startDate;
+  final String endDate;
+  final String rules;
+  final String prizes;
   final List<dynamic> posts;
-  final List<dynamic> domaines;
-  final String deadline;
-  final String prize;
-  final int maximumCapacity;
+  final String createdBy;
+  final List<dynamic> users;
+  final String createdAt;
+  final String updatedAt;
   final String id;
 
   Contest({
-    required this.deadline,
-    required this.prize,
-    required this.maximumCapacity,
-    required this.posts,
-    required this.id,
+    required this.name,
     required this.description,
-    required this.title,
-    required this.domaines,
-    required this.creatorName,
-    required this.creatorRef,
     required this.mediaUrl,
+    required this.startDate,
+    required this.endDate,
+    required this.rules,
+    required this.prizes,
+    required this.posts,
+    required this.createdBy,
+    required this.users,
     required this.createdAt,
+    required this.updatedAt,
+    required this.id,
   });
 
-  static Contest fromJson(Map<String, dynamic> json) => Contest(
-        posts: json['posts'],
-        deadline: json['deadline'],
-        prize: json['prize'],
-        maximumCapacity: json['maximumCapcity'],
-        id: json['_id'],
-        description: json['description'],
-        title: json['title'],
-        domaines: json['domaines'],
-        creatorName: json['creatorName'],
-        creatorRef: json['creatorRef'],
-        mediaUrl: json['mediaUrl'],
-        createdAt: json['createdAt'],
+  static Contest fromJson(Map<String, dynamic> json) {
+    try {
+      final name = json['name'] ?? '';
+
+      final description = json['description'] ?? '';
+
+      final mediaUrl = json['mediaUrl'] ?? '';
+
+      final startDate = json['startDate'] ?? '';
+
+      final endDate = json['endDate'] ?? '';
+
+      final rules = json['rules'] ?? '';
+
+      final prizes = json['prizes'] ?? '';
+
+      final posts = json['posts'] ?? [];
+
+      final createdBy = json['createdBy'] ?? '';
+
+      final users = json['users'] ?? [];
+
+      final createdAt = json['createdAt'] ?? '';
+
+      final updatedAt = json['updatedAt'] ?? '';
+
+      final id = json['_id'] ?? '';
+
+      return Contest(
+        name: name,
+        description: description,
+        mediaUrl: mediaUrl,
+        startDate: startDate,
+        endDate: endDate,
+        rules: rules,
+        prizes: prizes,
+        posts: posts,
+        createdBy: createdBy,
+        users: users,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        id: id,
       );
+    } catch (e) {
+      print("Error parsing JSON: $e");
+      rethrow;
+    }
+  }
 }

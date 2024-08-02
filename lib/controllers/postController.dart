@@ -7,11 +7,11 @@ import 'package:flutter/services.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/models/post.dart';
 import 'package:http/http.dart' as http;
-import 'package:larva/providers/userid_provider.dart';
 import 'package:palette_generator/palette_generator.dart';
-import 'package:provider/provider.dart';
 
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:path_provider/path_provider.dart';
 
 class PostController {
   Future<List<Post>> getPosts(BuildContext context) async {
@@ -26,6 +26,7 @@ class PostController {
 
       if (response.statusCode == 200) {
         List<dynamic> body = json.decode(response.body);
+
         List<Post> result = body.map((e) => Post.fromJson(e)).toList();
         return result;
       } else {
@@ -38,21 +39,41 @@ class PostController {
     }
   }
 
-  Future<void> uploadPost(BuildContext context, File file, String title,
-      String description, String domaine) async {
+  Future<void> uploadPost(
+    BuildContext context,
+    File file,
+    String title,
+    String description,
+    List<String> contests, // Accepts a list of contest IDs
+    String domaine,
+  ) async {
     print('uploadpost');
     String color;
-    //get the dominant color
-    bool is_video = file.path.toLowerCase().endsWith('mp4') ||
+    bool isVideo = file.path.toLowerCase().endsWith('mp4') ||
         file.path.toLowerCase().endsWith('mov');
-    print(is_video);
-    if (!is_video) {
+    print(isVideo);
+
+    File? thumbnailFile;
+
+    if (!isVideo) {
       PaletteGenerator pg = await _updatePaletteGenerator(file);
       color = pg.dominantColor!.color.value.toRadixString(16);
       print(color);
       color = '0x' + color;
     } else {
       color = '0x000000';
+      // Generate thumbnail for the video
+      final uint8List = await VideoThumbnail.thumbnailData(
+        video: file.path,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 128,
+        quality: 25,
+      );
+
+      // Save the thumbnail to a temporary file
+      final tempDir = await getTemporaryDirectory();
+      thumbnailFile = await File('${tempDir.path}/thumbnail.jpg').create();
+      await thumbnailFile.writeAsBytes(uint8List!);
     }
 
     final uri = Uri.parse(baseURL + "posts/new");
@@ -64,6 +85,14 @@ class PostController {
     request.fields['title'] = title;
     request.fields['domaine'] = domaine;
     request.fields['backgroundColor'] = color;
+    request.fields['contests'] =
+        jsonEncode(contests); // Pass contests as JSON array
+
+    if (isVideo && thumbnailFile != null) {
+      request.files.add(
+          await http.MultipartFile.fromPath('thumbnail', thumbnailFile.path));
+    }
+
     request.files.add(await http.MultipartFile.fromPath('file', file.path));
 
     try {

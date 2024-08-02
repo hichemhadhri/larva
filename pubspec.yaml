@@ -46,6 +46,7 @@ dependencies:
   shimmer: ^3.0.0
   video_player: ^2.9.1
   better_player: ^0.0.84
+  video_thumbnail: ^0.5.3
 
 dev_dependencies:
   flutter_test:

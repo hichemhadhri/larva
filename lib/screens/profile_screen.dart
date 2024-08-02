@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:images_picker/images_picker.dart';
 import 'package:larva/constants/constants.dart';
+import 'package:larva/controllers/postController.dart';
 import 'package:larva/controllers/userController.dart';
+import 'package:larva/models/post.dart';
 import 'package:larva/models/user.dart';
 import 'package:larva/providers/dbstate_provider.dart';
 import 'package:larva/screens/post_screen.dart';
@@ -22,6 +24,7 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   final UserController _uc = UserController();
+  final PostController _pc = PostController();
 
   bool _select = false;
   late File _selectedMedia;
@@ -48,6 +51,7 @@ class _ProfileState extends State<Profile> {
       future: _uc.getUserDetails(widget.id),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
+          print('hello');
           final user = snapshot.data as User;
 
           return Scaffold(
@@ -148,26 +152,64 @@ class _ProfileState extends State<Profile> {
                         crossAxisCount: 3),
                     itemCount: user.posts.length,
                     itemBuilder: (context, i) {
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => PostScreen(
-                                      author: user.surname + user.name,
-                                      ref: user.posts[i])));
+                      final postid = user.posts[i];
+                      return FutureBuilder(
+                        future: _pc.getPost(context, postid),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          } else if (snapshot.hasError) {
+                            return Center(
+                              child: Icon(Icons.error),
+                            );
+                          } else if (snapshot.hasData) {
+                            final post = snapshot.data as Post;
+                            final isVideo = post.mediaType == 'video';
+                            final imageUrl =
+                                isVideo ? post.thumbnail : post.mediaUrl;
+
+                            return GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => PostScreen(
+                                            author: user.surname + user.name,
+                                            ref: post.id)));
+                              },
+                              child: Hero(
+                                tag: post.id,
+                                child: Stack(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          fit: BoxFit.cover,
+                                          image: CachedNetworkImageProvider(
+                                            baseURL + imageUrl,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    if (isVideo)
+                                      Center(
+                                        child: Icon(
+                                          Icons.play_circle_outline,
+                                          color: Colors.white,
+                                          size: 50,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          } else {
+                            return SizedBox.shrink();
+                          }
                         },
-                        child: Hero(
-                          tag: user.posts[i],
-                          child: Container(
-                              decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: CachedNetworkImageProvider(
-                                          baseURL +
-                                              'posts/' +
-                                              user.posts[i])))),
-                        ),
                       );
                     },
                   )

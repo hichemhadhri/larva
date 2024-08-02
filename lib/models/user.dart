@@ -55,7 +55,7 @@ class User {
 
 class UserRating {
   final String post;
-  final int rating;
+  final double rating;
 
   UserRating({
     required this.post,
@@ -64,6 +64,6 @@ class UserRating {
 
   static UserRating fromJson(Map<String, dynamic> json) => UserRating(
         post: json['post'],
-        rating: json['rating'],
+        rating: json['rating'].toDouble(),
       );
 }

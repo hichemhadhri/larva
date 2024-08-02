@@ -1,8 +1,11 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:larva/constants/constants.dart';
+import 'package:larva/controllers/contestController.dart';
+import 'package:larva/models/post.dart';
 import 'package:larva/screens/new_post_screen.dart';
 
 class ContestDetails extends StatefulWidget {
@@ -10,13 +13,16 @@ class ContestDetails extends StatefulWidget {
   final String img;
   final String prize;
   final int deadline;
-  const ContestDetails(
-      {Key? key,
-      required this.name,
-      required this.prize,
-      required this.img,
-      required this.deadline})
-      : super(key: key);
+  final String contestId;
+
+  const ContestDetails({
+    Key? key,
+    required this.name,
+    required this.prize,
+    required this.img,
+    required this.deadline,
+    required this.contestId,
+  }) : super(key: key);
 
   @override
   _ContestDetailsState createState() => _ContestDetailsState();
@@ -25,6 +31,9 @@ class ContestDetails extends StatefulWidget {
 class _ContestDetailsState extends State<ContestDetails> {
   Duration deadline = Duration();
   Timer? timer;
+  List<Post> bestPosts = [];
+  bool isLoading = true;
+  final ContestController _contestController = ContestController();
 
   void countDown() {
     setState(() {
@@ -35,183 +44,175 @@ class _ContestDetailsState extends State<ContestDetails> {
   @override
   void initState() {
     super.initState();
-
-    deadline = new Duration(seconds: widget.deadline);
-
+    deadline = Duration(seconds: widget.deadline);
     timer = Timer.periodic(Duration(seconds: 1), (_) => countDown());
+    _fetchBestPosts();
+  }
+
+  Future<void> _fetchBestPosts() async {
+    List<Post> posts =
+        await _contestController.getTop10Posts(context, widget.contestId);
+    setState(() {
+      bestPosts = posts;
+      isLoading = false;
+    });
   }
 
   @override
   void dispose() {
     super.dispose();
-    timer!.cancel();
+    timer?.cancel();
   }
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.name),
         actions: [
           TextButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => Add(
-                            custom: true,
-                            contest: widget.name.replaceAll(" ", "_"))));
-              },
-              child: Text("join",
-                  style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Colors.amber,
-                      )))
-        ], systemOverlayStyle: SystemUiOverlayStyle.light,
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => Add(
+                    fromContest: true,
+                    contestId: widget.contestId,
+                    contestName: widget.name,
+                  ),
+                ),
+              );
+            },
+            child: Text(
+              "Join",
+              style: textTheme.titleLarge!.copyWith(
+                color: Colors.amber,
+              ),
+            ),
+          ),
+        ],
+        systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Column(
+            if (widget.img.isNotEmpty)
+              Center(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: CachedNetworkImage(
+                    imageUrl: baseURL + widget.img,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorWidget: (context, url, error) => Icon(Icons.error),
+                  ),
+                ),
+              ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
+                Expanded(
+                  child: Text(
+                    widget.name,
+                    style: textTheme.headlineSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                  ),
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.add,
+                    color: Colors.amber,
+                  ),
+                  label: Text(
+                    "Follow",
+                    style: TextStyle(color: Colors.amber),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    CircleAvatar(
-                      radius: 40,
-                      backgroundColor: Colors.black,
-                      child: SvgPicture.asset(
-                        "lib/assets/images/butterfly.svg",
-                        color: Colors.white,
+                    Text(
+                      "Prize: ${widget.prize}",
+                      style: textTheme.titleSmall!.copyWith(
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Column(
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              widget.name,
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                onPressed: () {},
-                                icon: Icon(
-                                  Icons.add,
-                                  color: Colors.amber,
-                                ),
-                                label: Text(
-                                  "Follow",
-                                  style: TextStyle(color: Colors.amber),
-                                )),
-                          ],
-                        ),
-                        Row(
-                          children: <Widget>[
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  "1K",
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                Text('Posts')
-                              ],
-                            ),
-                            SizedBox(width: 20),
-                            Column(
-                              children: <Widget>[
-                                Text(
-                                  "100£",
-                                  style: TextStyle(fontWeight: FontWeight.w600),
-                                ),
-                                Text('Prize')
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                    SizedBox(height: 10),
+                    Text(
+                      "Time Left:",
+                      style: textTheme.titleSmall,
+                    ),
+                    Text(
+                      "${deadline.inDays}d ${deadline.inHours % 24}h ${deadline.inMinutes % 60}m ${deadline.inSeconds % 60}s",
+                      style: textTheme.headlineSmall!.copyWith(
+                        color: Colors.red,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Row(
-              children: [
-                Text(
-                  "Time Left : ",
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                SizedBox(
-                  width: 10,
-                ),
-                Text(
-                  "${deadline.inDays}d ${deadline.inHours % 24}h ${deadline.inMinutes % 60}m ${deadline.inSeconds % 60}s",
-                  style: Theme.of(context)
-                      .textTheme
-                      .headlineSmall!
-                      .copyWith(color: Colors.amber),
+                SvgPicture.asset(
+                  "lib/assets/images/butterfly.svg",
+                  height: 40,
+                  color: Colors.amber,
                 ),
               ],
             ),
-            SizedBox(
-              height: 20,
-            ),
+            SizedBox(height: 20),
             Center(
-                child:
-                    ElevatedButton(onPressed: () {}, child: Text("See posts"))),
-            Column(
-              children: [
-                ListTile(
-                  title: Text("hichem hadhri"),
-                  leading: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage(
-                        "lib/assets/images/hichem.jpeg",
-                      )),
-                  trailing: Text("4.9"),
-                ),
-                ListTile(
-                  title: Text("hichem hadhri"),
-                  leading: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage(
-                        "lib/assets/images/hichem.jpeg",
-                      )),
-                  trailing: Text("4.9"),
-                ),
-                ListTile(
-                  title: Text("hichem hadhri"),
-                  leading: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage(
-                        "lib/assets/images/hichem.jpeg",
-                      )),
-                  trailing: Text("4.9"),
-                ),
-                ListTile(
-                  title: Text("hichem hadhri"),
-                  leading: CircleAvatar(
-                    radius: 20,
-                    backgroundImage: ResizeImage(
-                        AssetImage(
-                          "lib/assets/images/hichem.jpeg",
+              child: ElevatedButton(
+                onPressed: () {},
+                child: Text("See posts"),
+              ),
+            ),
+            SizedBox(height: 20),
+            Text(
+              "Best Posts",
+              style: textTheme.headlineSmall!.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+            isLoading
+                ? Center(child: CircularProgressIndicator(color: Colors.amber))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: bestPosts.length,
+                    itemBuilder: (context, index) {
+                      final post = bestPosts[index];
+                      return ListTile(
+                        title: Text(post.title),
+                        subtitle: Text(
+                          "Rating: ${post.averageRating.toStringAsFixed(1)}",
                         ),
-                        width: 40,
-                        height: 40),
+                        leading: CircleAvatar(
+                          radius: 20,
+                          backgroundImage: NetworkImage(post.thumbnail),
+                        ),
+                        trailing: Text("by ${post.author}"),
+                      );
+                    },
                   ),
-                  trailing: Text("4.9"),
-                )
-              ],
-            )
           ],
         ),
       ),

@@ -23,10 +23,10 @@ class _WallState extends State<Wall> {
       future: _pc.getPosts(context),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          final posts = snapshot.data as List<Post>;
+          final posts = (snapshot.data as List<Post>).reversed.toList();
 
           return PreloadPageView.builder(
-              preloadPagesCount: 4,
+              preloadPagesCount: 1,
               scrollDirection: Axis.vertical,
               controller: widget.controller,
               itemCount: posts.length,

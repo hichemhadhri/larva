@@ -1,22 +1,29 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'dart:typed_data';
 import 'package:flutter/services.dart';
-import "package:images_picker/images_picker.dart";
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:images_picker/images_picker.dart';
 import 'package:video_player/video_player.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:larva/controllers/postController.dart';
 import 'package:larva/util/SearchContest.dart';
 import 'package:larva/widgets/Tag.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
 
 class Add extends StatefulWidget {
-  final String contest;
-  final bool custom;
+  final String contestId;
+  final bool fromContest;
+  final String contestName;
 
-  const Add({Key? key, this.custom = false, this.contest = ""})
-      : super(key: key);
+  const Add({
+    Key? key,
+    this.fromContest = false,
+    this.contestId = "",
+    this.contestName = "",
+  }) : super(key: key);
 
   @override
   _AddState createState() => _AddState();
@@ -28,13 +35,16 @@ class _AddState extends State<Add> {
   final _description = TextEditingController();
   int _selectedDomaine = 0;
   Timer? _timer;
-  late List<String> _constests;
+  late List<String> _contests;
+  late List<String> _contests_name;
   VideoPlayerController? _videoController;
+  Uint8List? _videoThumbnail;
 
   @override
   void initState() {
     super.initState();
-    _constests = widget.contest.isEmpty ? [widget.contest] : [];
+    _contests = widget.contestName != '' ? [widget.contestId] : [];
+    _contests_name = widget.contestName != '' ? [widget.contestName] : [];
 
     EasyLoading.addStatusCallback((status) {
       print('EasyLoading Status $status');
@@ -59,37 +69,62 @@ class _AddState extends State<Add> {
   bool _isVideo = false;
 
   void getImage() async {
-    List<Media>? res = await ImagesPicker.pick(
-      count: 1,
-      pickType: PickType.all,
-      quality: 0.8, // only for android
-      maxSize: 250,
-    );
+    try {
+      List<Media>? res = await ImagesPicker.pick(
+        count: 1,
+        pickType: PickType.all,
+        quality: 0.8,
+        maxSize: 250,
+      );
 
-    print(res?.first.path);
+      print(res?.first.path);
 
-    if (res != null && res.isNotEmpty) {
+      if (res != null && res.isNotEmpty) {
+        setState(() {
+          _selectedMedia = File(res.first.path);
+          _select = true;
+          _isVideo = res.first.path.endsWith("MOV") ||
+              res.first.path.endsWith("mp4") ||
+              res.first.path.endsWith("avi") ||
+              res.first.path.endsWith("flv") ||
+              res.first.path.endsWith("wmv");
+
+          if (_isVideo) {
+            _generateVideoThumbnail();
+          }
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to pick image. Please try again.')),
+      );
+    }
+  }
+
+  Future<void> _generateVideoThumbnail() async {
+    try {
+      final uint8List = await VideoThumbnail.thumbnailData(
+        video: _selectedMedia.path,
+        imageFormat: ImageFormat.JPEG,
+        maxWidth: 128,
+        quality: 25,
+      );
+
       setState(() {
-        _selectedMedia = File(res.first.path);
-
-        _select = true;
-        _isVideo = res.first.path.endsWith("MOV") ||
-            res.first.path.endsWith("mp4") ||
-            res.first.path.endsWith("avi") ||
-            res.first.path.endsWith("flv") ||
-            res.first.path.endsWith("wmv");
-        if (_isVideo) {
-          _videoController = VideoPlayerController.file(_selectedMedia)
-            ..initialize().then((_) {
-              setState(() {});
-              _videoController!.play();
-            });
-        }
+        _videoThumbnail = uint8List;
       });
+    } catch (e) {
+      print('Error generating thumbnail: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Failed to generate thumbnail. Please try again.')),
+      );
     }
   }
 
   Random random = Random();
+
   @override
   void dispose() {
     _title.dispose();
@@ -108,13 +143,16 @@ class _AddState extends State<Add> {
           TextButton(
             onPressed: () async {
               EasyLoading.show(status: 'Uploading...');
+
               await _pc.uploadPost(
                 context,
                 _selectedMedia,
                 _title.text,
                 _description.text,
+                _contests, // Pass contests as an array
                 _domaines.elementAt(_selectedDomaine),
               );
+
               EasyLoading.dismiss();
             },
             child: Text(
@@ -126,7 +164,7 @@ class _AddState extends State<Add> {
             ),
           ),
         ],
-        automaticallyImplyLeading: widget.custom,
+        automaticallyImplyLeading: true,
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       resizeToAvoidBottomInset: true,
@@ -139,12 +177,8 @@ class _AddState extends State<Add> {
               onTap: getImage,
               child: _select
                   ? _isVideo
-                      ? _videoController != null &&
-                              _videoController!.value.isInitialized
-                          ? AspectRatio(
-                              aspectRatio: _videoController!.value.aspectRatio,
-                              child: VideoPlayer(_videoController!),
-                            )
+                      ? _videoThumbnail != null
+                          ? Image.memory(_videoThumbnail!)
                           : Center(child: CircularProgressIndicator())
                       : Image.file(_selectedMedia)
                   : Center(
@@ -238,7 +272,7 @@ class _AddState extends State<Add> {
                   scrollDirection: Axis.horizontal,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: _constests
+                    children: _contests_name
                         .map((e) => Tag(
                             key: Key(e), color: random.nextInt(8), string: e))
                         .toList(),
@@ -251,7 +285,7 @@ class _AddState extends State<Add> {
                       context: context, delegate: SearchContest());
                   if (result != null) {
                     setState(() {
-                      _constests.add(result);
+                      _contests.add(result);
                     });
                   }
                 },
@@ -266,6 +300,7 @@ class _AddState extends State<Add> {
   }
 
   double _kPickerSheetHeight = 200.0;
+
   Widget _buildBottomPicker(Widget picker) {
     return Container(
       height: _kPickerSheetHeight,
@@ -277,7 +312,6 @@ class _AddState extends State<Add> {
           fontSize: 22.0,
         ),
         child: GestureDetector(
-          // Blocks taps from propagating to the modal sheet and popping.
           onTap: () {},
           child: SafeArea(
             top: false,
