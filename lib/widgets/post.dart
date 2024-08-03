@@ -56,7 +56,7 @@ class _PostWidgetState extends State<PostWidget>
       duration: const Duration(seconds: 10),
       vsync: this,
     )..repeat();
-
+    _contest = null;
     _fetchUserInfo();
     _fetchContestInfo();
     isVideo = widget.post.mediaUrl.endsWith('.mp4') ||

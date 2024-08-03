@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:larva/controllers/contestController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/screens/new_contest_screen.dart';
-import 'package:larva/widgets/card.dart';
+import 'package:larva/widgets/ContestCard.dart';
 
 class ContestScreen extends StatefulWidget {
   const ContestScreen({Key? key}) : super(key: key);
@@ -24,111 +24,101 @@ class _ContestScreenState extends State<ContestScreen> {
         title: Text("Contests"),
         actions: [
           IconButton(onPressed: () {}, icon: Icon(Icons.search)),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => CreateContestScreen(),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.add,
-              color: Colors.amber,
-            ),
-            label: Text(
-              "New Contest",
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium!
-                  .copyWith(color: Colors.amber),
-            ),
-          ),
         ],
         systemOverlayStyle: SystemUiOverlayStyle.light,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'Contests by Your Followed Creators',
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colors.amber,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              TextField(
+                decoration: InputDecoration(
+                  prefixIcon: Icon(Icons.search),
+                  hintText: "Search",
+                  filled: true,
+                  fillColor: Colors.white,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Discover contests',
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                          color: Colors.white,
+                        ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 10),
+              FutureBuilder(
+                future: _cc.getContests(context),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final contests = snapshot.data as List<Contest>;
+                    // Filter contests by followed creators
+                    final followedCreatorContests = contests
+                        .where((contest) =>
+                            contest.createdBy !=
+                            null) // Add your own filter condition
+                        .toList();
+                    return SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: followedCreatorContests
+                            .map((contest) =>
+                                DiscoverContestCard(contest: contest))
+                            .toList(),
+                      ),
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.amber,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 20),
+              Text(
+                'Trending contests',
+                style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                      color: Colors.white,
                     ),
               ),
-            ),
-            SizedBox(height: 20),
-            FutureBuilder(
-              future: _cc.getContests(context),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final contests = snapshot.data as List<Contest>;
-                  // Filter contests by followed creators
-                  final followedCreatorContests = contests
-                      .where((contest) =>
-                          contest.createdBy !=
-                          null) // Add your own filter condition
-                      .toList();
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      children: followedCreatorContests
-                          .map((contest) => ContestCard(contest: contest))
-                          .toList(),
-                    ),
-                  );
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.amber,
-                    ),
-                  );
-                }
-              },
-            ),
-            SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Text(
-                'All',
-                style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colors.amber,
-                    ),
-              ),
-            ),
-            SizedBox(height: 20),
-            FutureBuilder(
-              future: _cc.getContests(context),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  final contests = snapshot.data as List<Contest>;
-                  return SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
+              SizedBox(height: 10),
+              FutureBuilder(
+                future: _cc.getContests(context),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    final contests = snapshot.data as List<Contest>;
+                    return Column(
                       children: contests
-                          .map((contest) => ContestCard(contest: contest))
+                          .map((contest) =>
+                              TrendingContestCard(contest: contest))
                           .toList(),
-                    ),
-                  );
-                } else {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      color: Colors.amber,
-                    ),
-                  );
-                }
-              },
-            ),
-            SizedBox(height: 20),
-          ],
+                    );
+                  } else {
+                    return Center(
+                      child: CircularProgressIndicator(
+                        color: Colors.amber,
+                      ),
+                    );
+                  }
+                },
+              ),
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
     );

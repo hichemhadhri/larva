@@ -17,11 +17,11 @@ class ContestDetails extends StatefulWidget {
 
   const ContestDetails({
     Key? key,
+    required this.contestId,
     required this.name,
     required this.prize,
     required this.img,
     required this.deadline,
-    required this.contestId,
   }) : super(key: key);
 
   @override
