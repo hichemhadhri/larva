@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class User {
   final String id;
   final String email;
@@ -51,6 +53,42 @@ class User {
         createdAt: DateTime.parse(json['user']['createdAt']),
         updatedAt: DateTime.parse(json['user']['updatedAt']),
       );
+
+  static User createDummyUser() {
+    return User(
+      id: _generateRandomString(24),
+      email: _generateRandomString(10) + '@example.com',
+      name: 'John',
+      surname: 'Doe',
+      bio: 'This is a dummy user.',
+      profilePicture:
+          'https://picsum.photos/200/' + Random().nextInt(100).toString(),
+      posts: [],
+      joinedContests: [],
+      ratings: _generateDummyRatings(),
+      following: [],
+      followers: [],
+      favoritePosts: [],
+      createdContests: [],
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
+    );
+  }
+
+  static List<UserRating> _generateDummyRatings() {
+    return List.generate(5, (index) {
+      return UserRating(
+        post: _generateRandomString(24),
+        rating: Random().nextDouble() * 5,
+      );
+    });
+  }
+
+  static String _generateRandomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return List.generate(
+        length, (index) => chars[Random().nextInt(chars.length)]).join();
+  }
 }
 
 class UserRating {

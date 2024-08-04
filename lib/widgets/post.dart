@@ -47,7 +47,7 @@ class _PostWidgetState extends State<PostWidget>
   final UserController _uc = UserController();
   late AnimationController _rotationController;
   Timer? _timer;
-  late Contest? _contest;
+  Contest? _contest;
 
   @override
   void initState() {
@@ -56,14 +56,14 @@ class _PostWidgetState extends State<PostWidget>
       duration: const Duration(seconds: 10),
       vsync: this,
     )..repeat();
-    _contest = null;
-    _fetchUserInfo();
-    _fetchContestInfo();
+
     isVideo = widget.post.mediaUrl.endsWith('.mp4') ||
         widget.post.mediaUrl.endsWith('.m3u8');
     if (isVideo) {
       _initializePlayer();
     }
+
+    _fetchInitialData();
 
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       setState(() {
@@ -75,41 +75,33 @@ class _PostWidgetState extends State<PostWidget>
     });
   }
 
+  Future<void> _fetchInitialData() async {
+    try {
+      user = await _uc.getUserDetails(widget.post.author);
+      if (widget.post.contests.isNotEmpty) {
+        final contestId = widget.post.contests[0]; // Assuming the first contest
+        _contest = await _cc.getContest(null, contestId);
+        contestImageUrl = _contest!.mediaUrl;
+        remainingTime =
+            _calculateRemainingTime(DateTime.parse(_contest!.endDate));
+      } else {
+        remainingTime = "Ended";
+        _contest = null;
+      }
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      throw Exception('Failed to load initial data');
+    }
+  }
+
   @override
   void dispose() {
     _timer?.cancel();
     _videoController?.dispose();
     _rotationController.dispose();
     super.dispose();
-  }
-
-  Future<void> _fetchUserInfo() async {
-    try {
-      user = await _uc.getUserDetails(widget.post.author);
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      throw Exception('Failed to load user info');
-    }
-  }
-
-  Future<void> _fetchContestInfo() async {
-    if (widget.post.contests.isNotEmpty) {
-      final contestId = widget.post.contests[0]; // Assuming the first contest
-      _cc.getContest(null, contestId).then((contest) {
-        setState(() {
-          contestImageUrl = contest!.mediaUrl;
-          _contest = contest;
-          remainingTime =
-              _calculateRemainingTime(DateTime.parse(contest.endDate));
-        });
-      });
-    } else
-      setState(() {
-        remainingTime = "Ended";
-        _contest = null;
-      });
   }
 
   String _calculateRemainingTime(DateTime end) {

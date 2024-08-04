@@ -1,3 +1,5 @@
+import 'dart:math';
+
 class Contest {
   final String name;
   final String description;
@@ -76,5 +78,29 @@ class Contest {
       print("Error parsing JSON: $e");
       rethrow;
     }
+  }
+
+  static Contest createDummyContest() {
+    return Contest(
+      name: 'Dummy Contest',
+      description: 'This is a dummy contest.',
+      mediaUrl: 'https://picsum.photos/400',
+      startDate: DateTime.now().toIso8601String(),
+      endDate: DateTime.now().add(Duration(days: 7)).toIso8601String(),
+      rules: 'These are dummy rules.',
+      prizes: 'Dummy prizes.',
+      posts: [],
+      createdBy: _generateRandomString(24),
+      users: [],
+      createdAt: DateTime.now().toIso8601String(),
+      updatedAt: DateTime.now().toIso8601String(),
+      id: _generateRandomString(24),
+    );
+  }
+
+  static String _generateRandomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    return List.generate(
+        length, (index) => chars[Random().nextInt(chars.length)]).join();
   }
 }

@@ -47,6 +47,7 @@ dependencies:
   video_player: ^2.9.1
   better_player: ^0.0.84
   video_thumbnail: ^0.5.3
+  material_design_icons_flutter: ^7.0.7296
 
 dev_dependencies:
   flutter_test:

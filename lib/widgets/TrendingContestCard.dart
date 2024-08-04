@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:larva/models/contest.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:larva/constants/constants.dart';
+import 'package:larva/models/user.dart';
 import 'package:larva/screens/Contest_details_screen.dart';
 
 class TrendingContestCard extends StatelessWidget {
@@ -24,13 +25,8 @@ class TrendingContestCard extends StatelessWidget {
             context,
             MaterialPageRoute(
                 builder: (context) => ContestDetails(
-                      contestId: contest.id,
-                      name: contest.name,
-                      prize: contest.prizes,
-                      img: contest.mediaUrl,
-                      deadline: DateTime.parse(contest.endDate)
-                          .difference(DateTime.now())
-                          .inSeconds,
+                      contest: Contest.createDummyContest(),
+                      user: User.createDummyUser(),
                     )));
       },
       child: Container(

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:larva/controllers/contestController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/screens/new_contest_screen.dart';
+import 'package:larva/widgets/AlmostOverCard.dart';
 import 'package:larva/widgets/ContestCard.dart';
 
 class ContestScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _ContestScreenState extends State<ContestScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Discover contests',
+                    'Almost Over',
                     style: Theme.of(context).textTheme.headlineSmall!.copyWith(
                           color: Colors.white,
                         ),
@@ -64,18 +65,21 @@ class _ContestScreenState extends State<ContestScreen> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     final contests = snapshot.data as List<Contest>;
-                    // Filter contests by followed creators
-                    final followedCreatorContests = contests
+                    final almostOverContests = contests
                         .where((contest) =>
-                            contest.createdBy !=
-                            null) // Add your own filter condition
+                            DateTime.parse(contest.endDate)
+                                .difference(DateTime.now())
+                                .inDays <
+                            1)
                         .toList();
+
                     return SingleChildScrollView(
                       scrollDirection: Axis.horizontal,
+                      clipBehavior: Clip.none,
                       child: Row(
-                        children: followedCreatorContests
+                        children: almostOverContests
                             .map((contest) =>
-                                DiscoverContestCard(contest: contest))
+                                AlmostOverContestCard(contest: contest))
                             .toList(),
                       ),
                     );
