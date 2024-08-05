@@ -27,7 +27,6 @@ class DiscoverContestCard extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => ContestDetails(
                       contest: Contest.createDummyContest(),
-                      user: User.createDummyUser(),
                     )));
       },
       child: Container(
@@ -104,7 +103,6 @@ class TrendingContestCard extends StatelessWidget {
             MaterialPageRoute(
                 builder: (context) => ContestDetails(
                       contest: Contest.createDummyContest(),
-                      user: User.createDummyUser(),
                     )));
       },
       child: Container(

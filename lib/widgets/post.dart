@@ -138,6 +138,7 @@ class _PostWidgetState extends State<PostWidget>
 
   void _onVideoEvent(BetterPlayerEvent event) {
     if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
+      print('object');
       setState(() {
         // Video is ready, rebuild to display it
       });

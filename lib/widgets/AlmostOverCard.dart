@@ -57,7 +57,6 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
           MaterialPageRoute(
             builder: (context) => ContestDetails(
               contest: widget.contest,
-              user: User.createDummyUser(),
             ),
           ),
         );
