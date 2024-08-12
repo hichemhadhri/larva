@@ -24,6 +24,18 @@ class _ContestScreenState extends State<ContestScreen> {
         automaticallyImplyLeading: false,
         title: Text("Contests"),
         actions: [
+          TextButton(
+              onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return CreateContestScreen();
+                }));
+              },
+              child: Row(
+                children: [
+                  Icon(Icons.add, color: Colors.amber),
+                  Text("Create", style: TextStyle(color: Colors.amber)),
+                ],
+              )),
           IconButton(onPressed: () {}, icon: Icon(Icons.search)),
         ],
         systemOverlayStyle: SystemUiOverlayStyle.light,

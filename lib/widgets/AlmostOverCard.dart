@@ -35,15 +35,16 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
       return 'Finished';
     }
     String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final days = duration.inDays;
     final hours = twoDigits(duration.inHours.remainder(24));
     final minutes = twoDigits(duration.inMinutes.remainder(60));
-    final seconds = twoDigits(duration.inSeconds.remainder(60));
-    return '$hours:$minutes:$seconds';
+    return days > 0 ? '$days d $hours h $minutes m' : '$hours h $minutes m';
   }
 
   @override
   Widget build(BuildContext context) {
-    final _textTheme = GoogleFonts.latoTextTheme(Theme.of(context).textTheme);
+    final _textTheme =
+        GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme);
     final remainingTime =
         DateTime.parse(widget.contest.endDate).difference(DateTime.now());
 
@@ -62,18 +63,22 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
         );
       },
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 10),
-        padding: const EdgeInsets.all(8.0),
-        width: screenWidth * 0.4, // Responsive width
+        margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        padding: const EdgeInsets.all(12.0),
+        width: screenWidth * 0.45,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(15)),
-          color: _color,
+          borderRadius: BorderRadius.all(Radius.circular(20)),
+          gradient: LinearGradient(
+            colors: [Colors.grey[900]!, Colors.grey[800]!],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           boxShadow: [
             BoxShadow(
-              color: _color.withOpacity(0.2),
+              color: Colors.black.withOpacity(0.3),
               spreadRadius: 2,
-              blurRadius: 5,
-              offset: Offset(0, 3),
+              blurRadius: 8,
+              offset: Offset(0, 5),
             ),
           ],
         ),
@@ -81,7 +86,7 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
           clipBehavior: Clip.none,
           children: [
             Positioned(
-              top: -30, // Move avatars up
+              top: -30,
               left: 0,
               right: 0,
               child: Center(
@@ -114,6 +119,25 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
                             radius: 40,
                             backgroundImage: CachedNetworkImageProvider(
                                 baseURL + creator.profilePicture),
+                            backgroundColor: Colors.transparent,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Colors.black.withOpacity(0.3),
+                                    Colors.transparent
+                                  ],
+                                  stops: [0.0, 0.7],
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                ),
+                                border: Border.all(
+                                  color: Colors.amber,
+                                  width: 2,
+                                ),
+                              ),
+                            ),
                           ),
                           Positioned(
                             bottom: -5,
@@ -122,6 +146,16 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
                               radius: 15,
                               backgroundImage: CachedNetworkImageProvider(
                                 baseURL + widget.contest.mediaUrl,
+                              ),
+                              backgroundColor: Colors.transparent,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 2,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -135,7 +169,7 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 50), // Add space for avatars
+                SizedBox(height: 50),
                 FutureBuilder<User>(
                   future: _creator,
                   builder: (context, snapshot) {
@@ -146,7 +180,7 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
                         'Error loading creator',
                         style: _textTheme.bodySmall!.copyWith(
                           color: Colors.red,
-                          fontSize: screenWidth * 0.03, // Responsive font size
+                          fontSize: screenWidth * 0.03,
                         ),
                       );
                     } else if (!snapshot.hasData) {
@@ -154,37 +188,38 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
                         'Creator not found',
                         style: _textTheme.bodySmall!.copyWith(
                           color: Colors.grey,
-                          fontSize: screenWidth * 0.03, // Responsive font size
+                          fontSize: screenWidth * 0.03,
                         ),
                       );
                     } else {
                       final creator = snapshot.data!;
                       return Text(
                         creator.surname,
-                        style: _textTheme.bodySmall!.copyWith(
+                        style: _textTheme.bodyMedium!.copyWith(
                             color: Colors.white,
-                            fontSize:
-                                screenWidth * 0.04, // Responsive font size
+                            fontSize: screenWidth * 0.04,
                             fontWeight: FontWeight.bold),
                       );
                     }
                   },
                 ),
-
                 Text(
                   '#${widget.contest.name.replaceAll(" ", "_")}',
                   style: _textTheme.bodySmall!.copyWith(
-                    fontSize: screenWidth * 0.03, // Responsive font size
+                    fontSize: screenWidth * 0.03,
+                    color: Colors.grey[400],
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                SizedBox(height: 4),
+                SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(MdiIcons.timer,
-                        color: Colors.red,
-                        size: screenWidth * 0.04), // Responsive icon size
+                        color: remainingTime.isNegative
+                            ? Colors.red
+                            : Colors.green,
+                        size: screenWidth * 0.05),
                     SizedBox(width: 4),
                     Text(
                       _formatDuration(remainingTime),
@@ -192,35 +227,31 @@ class _AlmostOverContestCardState extends State<AlmostOverContestCard> {
                         color: remainingTime.isNegative
                             ? Colors.red
                             : Colors.white,
-                        fontSize: screenWidth * 0.03, // Responsive font size
+                        fontSize: screenWidth * 0.03,
                       ),
                     ),
                     Spacer(),
                     Row(
                       children: [
                         Icon(MdiIcons.folder,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            size: screenWidth * 0.04), // Responsive icon size
+                            color: Colors.white, size: screenWidth * 0.05),
                         SizedBox(width: 4),
                         Text(
                           widget.contest.posts.length.toString(),
                           style: _textTheme.bodySmall!.copyWith(
                             color: Colors.white,
-                            fontSize:
-                                screenWidth * 0.03, // Responsive font size
+                            fontSize: screenWidth * 0.03,
                           ),
                         ),
                         SizedBox(width: 10),
                         Icon(Icons.star,
-                            color: Colors.amber,
-                            size: screenWidth * 0.04), // Responsive icon size
+                            color: Colors.amber, size: screenWidth * 0.05),
                         SizedBox(width: 4),
                         Text(
                           widget.contest.users.length.toString(),
                           style: _textTheme.bodySmall!.copyWith(
                             color: Colors.white,
-                            fontSize:
-                                screenWidth * 0.03, // Responsive font size
+                            fontSize: screenWidth * 0.03,
                           ),
                         ),
                       ],

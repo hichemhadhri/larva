@@ -10,6 +10,9 @@ import 'package:larva/controllers/postController.dart';
 import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/models/user.dart';
+import 'package:larva/routes/navigation.dart';
+import 'package:larva/screens/Contest_details_screen.dart';
+import 'package:larva/screens/profile_screen.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:http/http.dart' as http;
@@ -48,6 +51,8 @@ class _PostWidgetState extends State<PostWidget>
   late AnimationController _rotationController;
   Timer? _timer;
   Contest? _contest;
+
+  Color _saveColor = Colors.white;
 
   @override
   void initState() {
@@ -106,14 +111,17 @@ class _PostWidgetState extends State<PostWidget>
 
   String _calculateRemainingTime(DateTime end) {
     final now = DateTime.now();
+
     final difference = end.difference(now);
-    if (difference.isNegative) return "Ended";
-
-    final hours = difference.inHours;
-    final minutes = difference.inMinutes % 60;
-    final seconds = difference.inSeconds % 60;
-
-    return "${hours.toString().padLeft(2, '0')}:${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+    if (difference.isNegative) {
+      return 'Finished';
+    }
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final days = difference.inDays;
+    final hours = twoDigits(difference.inHours.remainder(24));
+    final minutes = twoDigits(difference.inMinutes.remainder(60));
+    final seconds = twoDigits(difference.inSeconds.remainder(60));
+    return '${days}d ${hours}h ${minutes}m ${seconds}s';
   }
 
   void _initializePlayer() {
@@ -262,10 +270,23 @@ class _PostWidgetState extends State<PostWidget>
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              CircleAvatar(
-                                radius: width * 0.05,
-                                backgroundImage:
-                                    NetworkImage(baseURL + user.profilePicture),
+                              GestureDetector(
+                                onTap: () {
+                                  // Navigate to the user profile
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Profile(
+                                        id: user.id,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                child: CircleAvatar(
+                                  radius: width * 0.05,
+                                  backgroundImage: NetworkImage(
+                                      baseURL + user.profilePicture),
+                                ),
                               ),
                               SizedBox(width: width * 0.03),
                               Column(
@@ -298,6 +319,7 @@ class _PostWidgetState extends State<PostWidget>
                                       GestureDetector(
                                         onTap: () {
                                           // Add follow logic here
+                                          _uc.followUser(user.id);
                                         },
                                         child: Text(
                                           'Follow',
@@ -392,50 +414,65 @@ class _PostWidgetState extends State<PostWidget>
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   if (widget.post.contests.length > 0)
-                                    AnimatedBuilder(
-                                      animation: _rotationController,
-                                      builder: (context, child) {
-                                        return Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            CircleAvatar(
-                                              radius: width * 0.05,
-                                              backgroundImage: NetworkImage(
-                                                  baseURL + contestImageUrl),
-                                              backgroundColor: Colors.white,
-                                              foregroundColor: Colors.white,
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: Colors.white,
-                                                    width: width * 0.005,
-                                                  ),
-                                                ),
-                                              ),
+                                    GestureDetector(
+                                      onTap: () {
+                                        // Navigate to the contest
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                ContestDetails(
+                                              contest: _contest!,
                                             ),
-                                            Positioned.fill(
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: Colors.black
-                                                      .withOpacity(0.3),
-                                                ),
-                                              ),
-                                            ),
-                                            Text(
-                                              '${_contest!.posts.length}',
-                                              style: Theme.of(context)
-                                                  .textTheme
-                                                  .bodyLarge
-                                                  ?.copyWith(
-                                                    color: Colors.white,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                            ),
-                                          ],
+                                          ),
                                         );
                                       },
+                                      child: AnimatedBuilder(
+                                        animation: _rotationController,
+                                        builder: (context, child) {
+                                          return Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              CircleAvatar(
+                                                radius: width * 0.05,
+                                                backgroundImage: NetworkImage(
+                                                    baseURL + contestImageUrl),
+                                                backgroundColor: Colors.white,
+                                                foregroundColor: Colors.white,
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: width * 0.005,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                              Positioned.fill(
+                                                child: Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                  ),
+                                                ),
+                                              ),
+                                              Text(
+                                                '${_contest!.posts.length}',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .bodyLarge
+                                                    ?.copyWith(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
                                     ),
                                   SizedBox(height: height * 0.01),
                                   Text(
@@ -467,9 +504,17 @@ class _PostWidgetState extends State<PostWidget>
                                       IconButton(
                                         iconSize: width * 0.06,
                                         icon: Icon(Icons.bookmark_border,
-                                            color: Colors.white),
+                                            color: _saveColor),
                                         onPressed: () {
                                           // Handle the button press
+                                          _uc.addFavoritePost(
+                                              widget.post.id, _contest!.id);
+
+                                          // make the button green
+
+                                          setState(() {
+                                            _saveColor = Colors.green;
+                                          });
                                         },
                                       ),
                                       IconButton(
@@ -478,6 +523,60 @@ class _PostWidgetState extends State<PostWidget>
                                             color: Colors.white),
                                         onPressed: () {
                                           // Handle the button press
+                                          showModalBottomSheet(
+                                            context: context,
+                                            builder: (context) {
+                                              return Container(
+                                                color: Colors.black,
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    ListTile(
+                                                      leading: Icon(
+                                                        Icons.flag,
+                                                        color: Colors.white,
+                                                      ),
+                                                      title: Text(
+                                                        'Report',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge
+                                                            ?.copyWith(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                      ),
+                                                      onTap: () {
+                                                        // Handle the button press
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                    ListTile(
+                                                      leading: Icon(
+                                                        Icons.block,
+                                                        color: Colors.white,
+                                                      ),
+                                                      title: Text(
+                                                        'Block',
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyLarge
+                                                            ?.copyWith(
+                                                              color:
+                                                                  Colors.white,
+                                                            ),
+                                                      ),
+                                                      onTap: () {
+                                                        // Handle the button press
+                                                        Navigator.pop(context);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                          );
                                         },
                                       ),
                                     ],

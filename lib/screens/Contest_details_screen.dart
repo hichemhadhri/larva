@@ -6,6 +6,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:larva/constants/constants.dart';
 import 'package:larva/controllers/contestController.dart';
+import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/models/post.dart';
 import 'package:larva/models/user.dart';
@@ -30,13 +31,24 @@ class _ContestDetailsState extends State<ContestDetails> {
   Duration deadline = Duration();
   Timer? timer;
   List<Post> bestPosts = [];
+  Map<String, User> users = {};
+  User? creator;
   bool isLoading = true;
   final ContestController _contestController = ContestController();
+  final UserController _userController = UserController();
 
   void countDown() {
     setState(() {
       deadline = Duration(seconds: deadline.inSeconds - 1);
     });
+  }
+
+  void reorderTopThree(List<Post> posts) {
+    if (posts.length >= 2) {
+      final temp = posts[0];
+      posts[0] = posts[1];
+      posts[1] = temp;
+    }
   }
 
   @override
@@ -45,15 +57,31 @@ class _ContestDetailsState extends State<ContestDetails> {
     deadline =
         DateTime.parse(widget.contest.endDate).difference(DateTime.now());
     timer = Timer.periodic(Duration(seconds: 1), (_) => countDown());
-    _fetchBestPosts();
+    _fetchData();
   }
 
-  Future<void> _fetchBestPosts() async {
-    // Simulate fetching posts
-    await Future.delayed(Duration(seconds: 2));
+  Future<void> _fetchData() async {
     setState(() {
-      bestPosts = []; // Populate with dummy posts if needed
+      isLoading = true;
+    });
+
+    // Fetch creator details
+    creator = await _userController.getUserDetails(widget.contest.createdBy);
+
+    // Fetch top 10 posts
+    bestPosts =
+        await _contestController.getTop10Posts(context, widget.contest.id);
+
+    // Fetch details for each post's creator
+    for (var post in bestPosts) {
+      if (!users.containsKey(post.author)) {
+        users[post.author] = await _userController.getUserDetails(post.author);
+      }
+    }
+
+    setState(() {
       isLoading = false;
+      reorderTopThree(bestPosts);
     });
   }
 
@@ -115,941 +143,443 @@ class _ContestDetailsState extends State<ContestDetails> {
         systemOverlayStyle: SystemUiOverlayStyle.light,
         backgroundColor: Colors.black,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Card(
-                color: Colors.grey[850],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                elevation: 5,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              spreadRadius: 5,
-                              blurRadius: 7,
-                              offset: Offset(0, 3),
+      body: isLoading
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Center(
+                    child: Card(
+                      color: Colors.grey[850],
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    spreadRadius: 5,
+                                    blurRadius: 7,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: CircleAvatar(
+                                radius: 60,
+                                backgroundImage: CachedNetworkImageProvider(
+                                    baseURL + widget.contest.mediaUrl),
+                                backgroundColor: Colors.transparent,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Text(
+                              capitalizeFirstLetter(widget.contest.name),
+                              style: textTheme.headlineSmall!.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Created by: ${creator?.surname ?? 'Loading...'}',
+                              style: textTheme.bodyMedium!.copyWith(
+                                color: Colors.white70,
+                              ),
+                            ),
+                            Text(
+                              'Created on: ${DateTime.parse(widget.contest.createdAt).day}/${DateTime.parse(widget.contest.createdAt).month}/${DateTime.parse(widget.contest.createdAt).year}',
+                              style: textTheme.bodyMedium!.copyWith(
+                                color: Colors.white70,
+                              ),
+                            ),
+                            SizedBox(height: 20),
+                            Container(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 20),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[900],
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                        "🏆 ${widget.contest.prizes}",
+                                        style: textTheme.bodyMedium!.copyWith(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "⏰ ${_formatDuration(deadline)}",
+                                        style: textTheme.bodyMedium!.copyWith(
+                                          color: deadline.isNegative
+                                              ? Colors.red
+                                              : Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(height: 10),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceEvenly,
+                                    children: [
+                                      Text(
+                                        "⭐ ${widget.contest.posts.length}",
+                                        style: textTheme.bodyMedium!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                      Text(
+                                        "📝 ${widget.contest.posts.length}",
+                                        style: textTheme.bodyMedium!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                      Text(
+                                        "👥 ${widget.contest.users.length}",
+                                        style: textTheme.bodyMedium!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                      Text(
+                                        "⏳ ${_formatTotalDuration(DateTime.parse(widget.contest.startDate), DateTime.parse(widget.contest.endDate))}",
+                                        style: textTheme.bodyMedium!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                             ),
                           ],
                         ),
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundImage: CachedNetworkImageProvider(
-                              baseURL + widget.contest.mediaUrl),
-                          backgroundColor: Colors.transparent,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  Center(
+                    child: TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => Wall(
+                              controller: PreloadPageController(),
+                            ),
+                          ),
+                        );
+                      },
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        padding: EdgeInsets.zero,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.visibility,
+                            color: Colors.white,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "View posts",
+                            style: textTheme.bodyMedium!.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 30),
+                  Row(
+                    children: [
+                      Icon(MdiIcons.trophyVariant, color: Colors.amber),
+                      SizedBox(width: 10),
                       Text(
-                        capitalizeFirstLetter(widget.contest.name),
+                        "Leaderboard",
                         style: textTheme.headlineSmall!.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Created by: ${User.createDummyUser().surname}',
-                        style: textTheme.bodyMedium!.copyWith(
-                          color: Colors.white70,
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  // Leaderboard for top 3 posts
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      border: Border.symmetric(
+                        horizontal: BorderSide(
+                          color: Colors.grey[800]!,
+                          width: 1,
                         ),
                       ),
-                      Text(
-                        'Created on: ${DateTime.parse(widget.contest.createdAt).day}/${DateTime.parse(widget.contest.createdAt).month}/${DateTime.parse(widget.contest.createdAt).year}',
-                        style: textTheme.bodyMedium!.copyWith(
-                          color: Colors.white70,
-                        ),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(10),
+                        topRight: Radius.circular(10),
                       ),
-                      SizedBox(height: 20),
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                        decoration: BoxDecoration(
-                          color: Colors.grey[900],
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Column(
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: bestPosts.take(3).map((post) {
+                        int rank = bestPosts.indexOf(post) + 1;
+                        if (rank == 2)
+                          rank = 1;
+                        else if (rank == 1) rank = 2;
+                        return Column(
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            Stack(
+                              clipBehavior: Clip.none,
+                              alignment: Alignment.center,
                               children: [
-                                Text(
-                                  "🏆 ${widget.contest.prizes}",
-                                  style: textTheme.bodyMedium!.copyWith(
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold,
+                                Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                        color: Colors.amber, width: 3),
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: rank == 1 ? 40 : 30,
+                                    backgroundImage: NetworkImage(baseURL +
+                                        users[post.author]!.profilePicture),
                                   ),
                                 ),
-                                Text(
-                                  "⏰ ${_formatDuration(deadline)}",
-                                  style: textTheme.bodyMedium!.copyWith(
-                                    color: deadline.isNegative
-                                        ? Colors.red
-                                        : Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                Positioned(
+                                  bottom: -10,
+                                  child: Container(
+                                    padding: EdgeInsets.all(4),
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      rank.toString(),
+                                      style: textTheme.bodySmall!.copyWith(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
                             ),
                             SizedBox(height: 10),
+                            Text(
+                              users[post.author]?.surname ?? 'Loading...',
+                              style: textTheme.bodySmall!.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              post.title,
+                              style: textTheme.bodySmall!.copyWith(
+                                color: Colors.grey,
+                              ),
+                            ),
+                            SizedBox(height: 4),
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
-                                Text(
-                                  "⭐ ${widget.contest.posts.length}",
-                                  style: textTheme.bodyMedium!
-                                      .copyWith(color: Colors.white),
+                                Column(
+                                  children: [
+                                    Icon(
+                                      Icons.star,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    ),
+                                    Text(
+                                      post.ratings.length.toString(),
+                                      style: textTheme.bodySmall!.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  "📝 ${widget.contest.posts.length}",
-                                  style: textTheme.bodyMedium!
-                                      .copyWith(color: Colors.white),
+                                Column(
+                                  children: [
+                                    Icon(
+                                      Icons.favorite,
+                                      color: Colors.red,
+                                      size: 16,
+                                    ),
+                                    Text(
+                                      post.fans.length.toString(),
+                                      style: textTheme.bodySmall!.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  "👥 ${widget.contest.users.length}",
-                                  style: textTheme.bodyMedium!
-                                      .copyWith(color: Colors.white),
-                                ),
-                                Text(
-                                  "⏳ ${_formatTotalDuration(DateTime.parse(widget.contest.startDate), DateTime.parse(widget.contest.endDate))}",
-                                  style: textTheme.bodyMedium!
-                                      .copyWith(color: Colors.white),
+                                Column(
+                                  children: [
+                                    Icon(
+                                      Icons.star_half,
+                                      color: Colors.amber,
+                                      size: 16,
+                                    ),
+                                    Text(
+                                      post.averageRating.toStringAsFixed(1),
+                                      style: textTheme.bodySmall!.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
                           ],
-                        ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                  // List of other posts
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[900],
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(10),
+                        bottomRight: Radius.circular(10),
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 20),
-            Center(
-              child: TextButton(
-                onPressed: () {},
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.transparent,
-                  padding: EdgeInsets.zero,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                ),
-                child: TextButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => Wall(
-                          controller: PreloadPageController(),
-                        ),
-                      ),
-                    );
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.visibility,
-                        color: Colors.white,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        "View posts",
-                        style: textTheme.bodyMedium!.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 30),
-            Row(
-              children: [
-                Icon(MdiIcons.trophyVariant, color: Colors.amber),
-                SizedBox(width: 10),
-                Text(
-                  "Leaderboard",
-                  style: textTheme.headlineSmall!.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10),
-            Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                border: Border.symmetric(
-                  horizontal: BorderSide(
-                    color: Colors.grey[800]!,
-                    width: 1,
-                  ),
-                ),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(10),
-                  topRight: Radius.circular(10),
-                ),
-              ),
-              child: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Column(
-                        children: [
-                          SizedBox(height: 40),
-                          Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
+                    ),
+                    child: ListView(
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                      children: bestPosts.skip(3).map((post) {
+                        int rank = bestPosts.indexOf(post) + 1;
+                        return ListTile(
+                          leading: Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
+                              Text(
+                                "$rank. ",
+                                style: textTheme.bodySmall!.copyWith(
+                                  color: Colors.amber,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(width: 10),
                               Container(
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   border:
-                                      Border.all(color: Colors.amber, width: 3),
+                                      Border.all(color: Colors.amber, width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(
-                                      'https://picsum.photos/200/' +
-                                          Random().nextInt(100).toString()),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: -10,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    "2",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  radius: 20,
+                                  backgroundImage: NetworkImage(baseURL +
+                                      users[post.author]!.profilePicture),
                                 ),
                               ),
                             ],
                           ),
-                          SizedBox(height: 10),
-                          Text(
-                            "John",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "The wonderful tree",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          title: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "75",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.favorite,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "50",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star_half,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "4.5",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          SizedBox(height: 20),
-                          Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.amber, width: 3),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 40,
-                                  backgroundImage: NetworkImage(
-                                      'https://picsum.photos/200/' +
-                                          Random().nextInt(100).toString()),
+                              Text(
+                                users[post.author]?.surname ?? 'Loading...',
+                                style: textTheme.bodySmall!.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Positioned(
-                                bottom: -10,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    "1",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "samstone",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "The amazing rock",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "100",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.favorite,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "150",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star_half,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "4.8",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                      Column(
-                        children: [
-                          SizedBox(height: 60),
-                          Stack(
-                            clipBehavior: Clip.none,
-                            alignment: Alignment.center,
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  border:
-                                      Border.all(color: Colors.amber, width: 3),
-                                ),
-                                child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundImage: NetworkImage(
-                                      User.createDummyUser().profilePicture),
-                                ),
-                              ),
-                              Positioned(
-                                bottom: -10,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.amber,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    "3",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          SizedBox(height: 10),
-                          Text(
-                            "sofieee",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            "A wonderful place",
-                            style: textTheme.bodySmall!.copyWith(
-                              color: Colors.grey,
-                            ),
-                          ),
-                          SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "90",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.favorite,
-                                    color: Colors.red,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "80",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(width: 16),
-                              Column(
-                                children: [
-                                  Icon(
-                                    Icons.star_half,
-                                    color: Colors.amber,
-                                    size: 16,
-                                  ),
-                                  SizedBox(width: 4),
-                                  Text(
-                                    "4.7",
-                                    style: textTheme.bodySmall!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.grey[900],
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(10),
-                    bottomRight: Radius.circular(10)),
-              ),
-              child: ListView(
-                shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
-                children: [
-                  ListTile(
-                    leading: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "4. ",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.amber, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundImage: NetworkImage(
-                              'https://picsum.photos/200/' +
-                                  Random(100).nextInt(150).toString(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hichem Hadhri",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "The wonderful tree",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "75",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
+                              SizedBox(height: 4),
+                              Text(
+                                post.title,
+                                style: textTheme.bodySmall!.copyWith(
                                   color: Colors.grey,
-                                  size: 16,
                                 ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "10m",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
+                              ),
+                              SizedBox(height: 4),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.star,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      ),
+                                      Text(
+                                        post.ratings.length.toString(),
+                                        style: textTheme.bodySmall!.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.favorite,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "50",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.favorite,
+                                        color: Colors.red,
+                                        size: 16,
+                                      ),
+                                      Text(
+                                        post.fans.length.toString(),
+                                        style: textTheme.bodySmall!.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star_half,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "4.5",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
+                                  Column(
+                                    children: [
+                                      Icon(
+                                        Icons.star_half,
+                                        color: Colors.amber,
+                                        size: 16,
+                                      ),
+                                      Text(
+                                        post.averageRating.toStringAsFixed(1),
+                                        style: textTheme.bodySmall!.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  ListTile(
-                    leading: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "4. ",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.amber, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: Offset(0, 2),
+                                ],
                               ),
                             ],
                           ),
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundImage: NetworkImage(
-                              'https://picsum.photos/200/' +
-                                  Random(100).nextInt(150).toString(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hichem Hadhri",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "The wonderful tree",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "75",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  color: Colors.grey,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "10m",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.favorite,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "50",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star_half,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "4.5",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  ListTile(
-                    leading: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          "4. ",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.amber,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(width: 10),
-                        Container(
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.amber, width: 2),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: CircleAvatar(
-                            radius: 20,
-                            backgroundImage: NetworkImage(
-                              'https://picsum.photos/200/' +
-                                  Random(100).nextInt(150).toString(),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    title: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Hichem Hadhri",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          "The wonderful tree",
-                          style: textTheme.bodySmall!.copyWith(
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "75",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.access_time,
-                                  color: Colors.grey,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "10m",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.favorite,
-                                  color: Colors.red,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "50",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            SizedBox(width: 16),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.star_half,
-                                  color: Colors.amber,
-                                  size: 16,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  "4.5",
-                                  style: textTheme.bodySmall!.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
+                        );
+                      }).toList(),
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
       backgroundColor: Colors.black,
     );
   }
