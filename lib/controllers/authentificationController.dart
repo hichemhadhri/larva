@@ -27,7 +27,8 @@ class Auth {
       String token = body['token'] as String;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', token);
-      context.read<UserId>().setId(token);
+
+      context.read<UserProvider>().setUser(body['user']);
     }
 
     return response.statusCode;
@@ -56,7 +57,8 @@ class Auth {
       String token = body['token'] as String;
       SharedPreferences prefs = await SharedPreferences.getInstance();
       prefs.setString('token', token);
-      context.read<UserId>().setId(token);
+
+      context.read<UserProvider>().setUser(body['user']);
     }
 
     return response.statusCode;
@@ -71,9 +73,10 @@ class Auth {
     });
 
     if (response.statusCode == 200) {
-      String token = prefs.getString("token")!;
-
-      context.read<UserId>().setId(token);
+      final body = json.decode(response.body);
+      await context
+          .read<UserProvider>()
+          .setUserFromIdToken(body['user']['userId']);
     }
     return response.statusCode;
   }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 class User {
@@ -16,6 +17,8 @@ class User {
   final List<dynamic> createdContests;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool isCreator;
+  final Map<String, dynamic> stats;
 
   User({
     required this.id,
@@ -33,36 +36,54 @@ class User {
     required this.createdContests,
     required this.createdAt,
     required this.updatedAt,
+    this.isCreator = false,
+    this.stats = const {
+      'contestsWon': 0,
+      'averageRating': 0,
+      'hearts': 0,
+      'top1pct': 0,
+    },
   });
 
-  static User fromJson(Map<String, dynamic> json) => User(
-        id: json['user']['_id'],
-        email: json['user']['email'],
-        name: json['user']['name'],
-        surname: json['user']['surname'],
-        bio: json['user']['bio'],
-        profilePicture: json['user']['profilePicture'],
-        posts: json['user']['posts'],
-        joinedContests: json['user']['joinedContests'],
-        ratings: List<UserRating>.from(
-            json['user']['ratings'].map((x) => UserRating.fromJson(x))),
-        following: json['user']['following'],
-        followers: json['user']['followers'],
-        favoritePosts: json['user']['favoritePosts'],
-        createdContests: json['user']['createdContests'],
-        createdAt: DateTime.parse(json['user']['createdAt']),
-        updatedAt: DateTime.parse(json['user']['updatedAt']),
-      );
+  static User fromJson(Map<String, dynamic> json) {
+    final user = json['user'];
+    return User(
+      id: user['_id'],
+      email: user['email'],
+      name: user['name'],
+      surname: user['surname'],
+      bio: user['bio'],
+      profilePicture: user['profilePicture'],
+      posts: List<dynamic>.from(user['posts']),
+      joinedContests: List<dynamic>.from(user['joinedContests']),
+      ratings: List<UserRating>.from(
+          user['ratings'].map((x) => UserRating.fromJson(x))),
+      following: List<dynamic>.from(user['following']),
+      followers: List<dynamic>.from(user['followers']),
+      favoritePosts: List<dynamic>.from(user['favoritePosts']),
+      createdContests: List<dynamic>.from(user['createdContests']),
+      createdAt: DateTime.parse(user['createdAt']),
+      updatedAt: DateTime.parse(user['updatedAt']),
+      isCreator: json['isCreator'] ?? true,
+      stats: json['stats'] ??
+          {
+            'contestsWon': 0,
+            'averageRating': 0,
+            'hearts': 0,
+            'top1pct': 0,
+          },
+    );
+  }
 
   static User createDummyUser() {
+    final randomStringGenerator = _RandomStringGenerator();
     return User(
-      id: _generateRandomString(24),
-      email: _generateRandomString(10) + '@example.com',
+      id: randomStringGenerator.generate(24),
+      email: '${randomStringGenerator.generate(10)}@example.com',
       name: 'John',
       surname: 'Doe',
       bio: 'This is a dummy user.',
-      profilePicture:
-          'https://picsum.photos/200/' + Random().nextInt(100).toString(),
+      profilePicture: 'https://picsum.photos/200/${Random().nextInt(100)}',
       posts: [],
       joinedContests: [],
       ratings: _generateDummyRatings(),
@@ -78,16 +99,10 @@ class User {
   static List<UserRating> _generateDummyRatings() {
     return List.generate(5, (index) {
       return UserRating(
-        post: _generateRandomString(24),
+        post: _RandomStringGenerator().generate(24),
         rating: Random().nextDouble() * 5,
       );
     });
-  }
-
-  static String _generateRandomString(int length) {
-    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
-    return List.generate(
-        length, (index) => chars[Random().nextInt(chars.length)]).join();
   }
 }
 
@@ -104,4 +119,14 @@ class UserRating {
         post: json['post'],
         rating: json['rating'].toDouble(),
       );
+}
+
+class _RandomStringGenerator {
+  static const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+  String generate(int length) {
+    final random = Random();
+    return List.generate(length, (index) => chars[random.nextInt(chars.length)])
+        .join();
+  }
 }

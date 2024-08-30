@@ -7,6 +7,7 @@ import 'package:larva/screens/wall_screen.dart';
 import 'package:preload_page_view/preload_page_view.dart';
 import 'package:provider/provider.dart';
 import 'package:lazy_load_indexed_stack/lazy_load_indexed_stack.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Nav extends StatefulWidget {
   const Nav({Key? key}) : super(key: key);
@@ -35,6 +36,7 @@ class _NavState extends State<Nav> {
 
   @override
   Widget build(BuildContext context) {
+    context.watch<UserProvider>().user;
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: LazyLoadIndexedStack(
@@ -45,7 +47,9 @@ class _NavState extends State<Nav> {
           ),
           ContestScreen(),
           Add(),
-          Profile(id: context.watch<UserId>().id)
+          Profile(
+            userId: context.watch<UserProvider>().user!.id,
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(

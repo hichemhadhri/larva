@@ -10,10 +10,12 @@ import 'package:larva/controllers/postController.dart';
 import 'package:larva/controllers/userController.dart';
 import 'package:larva/models/contest.dart';
 import 'package:larva/models/user.dart';
+import 'package:larva/providers/userid_provider.dart';
 import 'package:larva/routes/navigation.dart';
 import 'package:larva/screens/Contest_details_screen.dart';
 import 'package:larva/screens/profile_screen.dart';
 import 'package:preload_page_view/preload_page_view.dart';
+import 'package:provider/provider.dart';
 import 'package:visibility_detector/visibility_detector.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -34,8 +36,7 @@ class PostWidget extends StatefulWidget {
   _PostWidgetState createState() => _PostWidgetState();
 }
 
-class _PostWidgetState extends State<PostWidget>
-    with AutomaticKeepAliveClientMixin, TickerProviderStateMixin {
+class _PostWidgetState extends State<PostWidget> with TickerProviderStateMixin {
   BetterPlayerController? _videoController;
   late BetterPlayerDataSource _betterPlayerDataSource;
   bool isVideo = false;
@@ -53,6 +54,7 @@ class _PostWidgetState extends State<PostWidget>
   Contest? _contest;
 
   Color _saveColor = Colors.white;
+  late User currentUser;
 
   @override
   void initState() {
@@ -70,6 +72,8 @@ class _PostWidgetState extends State<PostWidget>
 
     _fetchInitialData();
 
+    currentUser = context.read<UserProvider>().user;
+
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       setState(() {
         if (_contest != null) {
@@ -85,17 +89,40 @@ class _PostWidgetState extends State<PostWidget>
       user = await _uc.getUserDetails(widget.post.author);
       if (widget.post.contests.isNotEmpty) {
         final contestId = widget.post.contests[0]; // Assuming the first contest
-        _contest = await _cc.getContest(null, contestId);
-        contestImageUrl = _contest!.mediaUrl;
-        remainingTime =
-            _calculateRemainingTime(DateTime.parse(_contest!.endDate));
+        _cc.getContest(null, contestId.id).then((contest) {
+          setState(() {
+            _contest = contest!;
+            // check if favoritePosts contain the contest
+            _saveColor = Colors.white;
+            if (currentUser.favoritePosts.isNotEmpty) {
+              for (var i = 0; i < currentUser.favoritePosts.length; i++) {
+                if (currentUser.favoritePosts[i]['contest'] == _contest?.id) {
+                  _saveColor = Colors.orange;
+                  break;
+                }
+              }
+              for (var i = 0; i < currentUser.favoritePosts.length; i++) {
+                if (currentUser.favoritePosts[i]['post'] == widget.post.id) {
+                  _saveColor = Colors.green;
+                  break;
+                }
+              }
+            }
+            contestImageUrl = _contest!.mediaUrl;
+            remainingTime =
+                _calculateRemainingTime(DateTime.parse(_contest!.endDate));
+
+            isLoading = false;
+          });
+        });
       } else {
-        remainingTime = "Ended";
-        _contest = null;
+        setState(() {
+          remainingTime = "Ended";
+          _contest = null;
+          _saveColor = Colors.white;
+          isLoading = false;
+        });
       }
-      setState(() {
-        isLoading = false;
-      });
     } catch (e) {
       throw Exception('Failed to load initial data');
     }
@@ -146,7 +173,6 @@ class _PostWidgetState extends State<PostWidget>
 
   void _onVideoEvent(BetterPlayerEvent event) {
     if (event.betterPlayerEventType == BetterPlayerEventType.initialized) {
-      print('object');
       setState(() {
         // Video is ready, rebuild to display it
       });
@@ -174,10 +200,10 @@ class _PostWidgetState extends State<PostWidget>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // Needed for AutomaticKeepAliveClientMixin
-
     final width = MediaQuery.of(context).size.width;
     final height = MediaQuery.of(context).size.height;
+
+    context.watch<UserProvider>().user;
 
     return isLoading
         ? Center(child: CircularProgressIndicator())
@@ -277,7 +303,7 @@ class _PostWidgetState extends State<PostWidget>
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => Profile(
-                                        id: user.id,
+                                        userId: user.id,
                                       ),
                                     ),
                                   );
@@ -413,7 +439,7 @@ class _PostWidgetState extends State<PostWidget>
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
-                                  if (widget.post.contests.length > 0)
+                                  if (widget.post.contests.isNotEmpty)
                                     GestureDetector(
                                       onTap: () {
                                         // Navigate to the contest
@@ -486,7 +512,7 @@ class _PostWidgetState extends State<PostWidget>
                                                 255, 241, 163, 78),
                                             fontSize: width * 0.03),
                                   ),
-                                  if (widget.post.contests.length > 0)
+                                  if (widget.post.contests.isNotEmpty)
                                     Text(
                                         '#' +
                                             _contest!.name.replaceAll(" ", "_"),
@@ -502,18 +528,39 @@ class _PostWidgetState extends State<PostWidget>
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       IconButton(
-                                        iconSize: width * 0.06,
-                                        icon: Icon(Icons.bookmark_border,
-                                            color: _saveColor),
+                                        iconSize: width * 0.08,
+                                        icon: Icon(
+                                          context
+                                                  .watch<UserProvider>()
+                                                  .isFavoriteContest(
+                                                    _contest!.id,
+                                                  )
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color: context
+                                                  .watch<UserProvider>()
+                                                  .isFavorite(
+                                                    widget.post.id,
+                                                  )
+                                              ? Color.fromARGB(255, 9, 255, 0)
+                                              : (context
+                                                      .watch<UserProvider>()
+                                                      .isFavoriteContest(
+                                                        _contest!.id,
+                                                      ))
+                                                  ? Colors.orange
+                                                  : Colors.white,
+                                        ),
                                         onPressed: () {
-                                          // Handle the button press
                                           _uc.addFavoritePost(
                                               widget.post.id, _contest!.id);
-
-                                          // make the button green
+                                          context
+                                              .read<UserProvider>()
+                                              .addFavoritePost(
+                                                  widget.post.id, _contest!.id);
 
                                           setState(() {
-                                            _saveColor = Colors.green;
+                                            // The color will be updated through the provider
                                           });
                                         },
                                       ),
@@ -649,7 +696,4 @@ class _PostWidgetState extends State<PostWidget>
               ],
             ));
   }
-
-  @override
-  bool get wantKeepAlive => false;
 }

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:larva/constants/constants.dart';
+import 'package:larva/models/post.dart';
 import 'package:larva/models/user.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -22,6 +23,40 @@ class UserController {
       _showErrorMessage("Failed to load user details: ${e.toString()}");
     }
     return null as User;
+  }
+
+  Future<List<Post>> getUserPosts(String id) async {
+    final uri = Uri.parse(baseURL + "users/$id/posts");
+
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        List<dynamic> body = json.decode(response.body);
+        return body.map((dynamic item) => Post.fromJson(item)).toList();
+      } else {
+        _handleError(response);
+      }
+    } catch (e) {
+      _showErrorMessage("Failed to load user posts: ${e.toString()}");
+    }
+    return [];
+  }
+
+  Future<List<Post>> getUserFavoritePosts(String id) async {
+    final uri = Uri.parse(baseURL + "users/$id/favorites");
+
+    try {
+      final response = await http.get(uri);
+      if (response.statusCode == 200) {
+        List<dynamic> body = json.decode(response.body);
+        return body.map((dynamic item) => Post.fromJson(item)).toList();
+      } else {
+        _handleError(response);
+      }
+    } catch (e) {
+      _showErrorMessage("Failed to load user favorite posts: ${e.toString()}");
+    }
+    return [];
   }
 
   Future<void> signUp(

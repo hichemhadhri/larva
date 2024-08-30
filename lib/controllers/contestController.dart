@@ -96,7 +96,7 @@ class ContestController {
     }
   }
 
-  Future<Contest?> getContest(BuildContext? context, String contestId) async {
+  Future<Contest> getContest(BuildContext? context, String contestId) async {
     final uri = Uri.parse(baseURL + "contests/contest/$contestId");
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -113,9 +113,9 @@ class ContestController {
       }
     } catch (e) {
       _showError(context!, 'An error occurred');
-      return null;
+      return null as Contest;
     }
-    return null;
+    return null as Contest;
   }
 
   Future<List<Post>> getContestPosts(
